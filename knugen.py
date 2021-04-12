@@ -30,7 +30,7 @@ class App(tk.Tk):
         # Initializing an empty frame array
         self.frames = {}
 
-        for F in (Homepage, Login):
+        for F in (Homepage, Login, Register):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -81,34 +81,37 @@ class Login(tk.Frame):
 
         # Username Entry
         tk.Label(self, text="").grid(row=3, column=0)    # Equivalent to empty line
-        self.usernameLabel = tk.Label(self, text="Username: ", font=("Segoe UI", 11)).grid(row=4, column=0, sticky=tk.W, columnspan=3)
+        self.usernameLabel = tk.Label(self, text="Enter Username: ", font=("Segoe UI", 11)).grid(row=4, column=0, sticky=tk.W, columnspan=3)
         self.usernameEntry = tk.Entry(self, textvariable=self.username)
         self.usernameEntry.grid(row=4, column=3, sticky=tk.W, columnspan=2)
 
         # Password Entry
-        self.passwordLabel = tk.Label(self, text="Password: ", font=("Segoe UI", 11)).grid(row=5, column=0, sticky=tk.W, columnspan=3)
+        self.passwordLabel = tk.Label(self, text="Enter Password: ", font=("Segoe UI", 11)).grid(row=5, column=0, sticky=tk.W, columnspan=3)
         self.passwordEntry = tk.Entry(self, textvariable=self.password)
         self.passwordEntry.grid(row=5, column=3, columnspan=2)
         
-        # Role selection
+        # Role Selection
         tk.Label(self, text="").grid(row=6, column=0)    # Equivalent to empty line
         self.adminRadioButton = tk.Radiobutton(self, text="Administrator", variable=self.userType, value="Admin", font=("Segoe UI", 11)).grid(row=7, column=0, sticky=tk.W, columnspan=3)
         self.employeeRadioButton = tk.Radiobutton(self, text="Employee", variable=self.userType, value="Employee", font=("Segoe UI", 11)).grid(row=7, column=3, sticky=tk.E, columnspan=2)
         
-        # Submit button
+        # Submit Button
         tk.Label(self, text="").grid(row=8, column=0, columnspan=2)    # Equivalent to empty line
-        self.loginButton = tk.Button(self, text="Login", height="2", width="15", command=self.validate).grid(row=9, column=0, columnspan=2)
+        self.submitButton = tk.Button(self, text="Login", height="2", width="35", command=self.validate).grid(row=9, column=0, columnspan=5)
 
-        # Back button
-        tk.Label(self, text="        ").grid(row=9, column=2)    # Equivalent to empty column
-        self.backButton = tk.Button(self, text="Back", height="2", width="15", command=lambda: controller.show_frame(Homepage)).grid(row=9, column=3, columnspan=2)
+        # Register Button
+        tk.Label(self, text="").grid(row=10, column=0)    # Equivalent to empty line
+        self.registerButton = tk.Button(self, text="Sign Up", height="1", width="15", command=lambda: controller.show_frame(Register)).grid(row=11, column=0, columnspan=2)
+
+        # Back Button
+        tk.Label(self, text="      ").grid(row=11, column=2)    # Equivalent to empty column
+        self.backButton = tk.Button(self, text="Back", height="1", width="15", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=3, columnspan=2)
     
 
     # Reference: A Simple Login System With Python & Tkinter - https://medium.com/satyam-kulkarni/a-simple-login-system-with-python-tkinter-73e4c90820d7
-    def validate(self):
-        
-        data = (self.username.get(),)
-        inputData = (self.username.get(), self.password.get(),)
+    def validate(self):      
+        search = (self.username.get(),)
+        inputData = (self.username.get(), self.password.get())
 
         if self.username.get() == "" or self.password.get() == "" or self.userType == "":
             messagebox.showerror("Required Fields", "Please input all required fields.")
@@ -116,22 +119,101 @@ class Login(tk.Frame):
 
         try:
             if self.userType.get() == "Admin":
-                if adminLoginDB.validateData(data, inputData) == 0:    # Call function in Database Class
+                if adminLoginDB.validate(search, inputData) == 1:    # Call function in Database Class
                     messagebox.showinfo("Successful", "Login Successfully!")
-                elif adminLoginDB.validateData(data, inputData) == 1:
+                elif adminLoginDB.validate(search, inputData) == 0:
                     messagebox.showerror("Error", "User Does Not Exist!")
                 else:
                     messagebox.showerror("Error", "Password Incorrect!")
             elif self.userType.get() == "Employee":
-                if employeeLoginDB.validateData(data, inputData) == 0:
+                if employeeLoginDB.validate(search, inputData) == 1:
                     messagebox.showinfo("Successful", "Login Successfully!")
-                elif employeeLoginDB.validateData(data, inputData) == 1:
+                elif employeeLoginDB.validate(search, inputData) == 0:
                     messagebox.showerror("Error", "User Does Not Exist!")
                 else:
                     messagebox.showerror("Error", "Password Incorrect!")
         except IndexError:
             messagebox.showerror("Error", "Wrong Credentials")
         
+
+# Register Window
+class Register(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create register page element
+        tk.Label(self, text="").grid(row=0, column=0)    # Equivalent to empty line
+        tk.Label(self, text="").grid(row=1, column=0)    # Equivalent to empty line
+        self.header = tk.Label(self, text="User Registration", font=("Segoe UI", 18, "bold")).grid(row=2, column=0, columnspan=5)   # The first parameter: where to put the element
+
+        self.userType = tk.StringVar()
+        self.username = tk.StringVar()
+        self.password1 = tk.StringVar()
+        self.password2 = tk.StringVar()
+
+
+        # Username Entry
+        tk.Label(self, text="").grid(row=3, column=0)    # Equivalent to empty line
+        self.usernameLabel = tk.Label(self, text="Enter Username: ", font=("Segoe UI", 11)).grid(row=4, column=0, sticky=tk.W, columnspan=3)
+        self.usernameEntry = tk.Entry(self, textvariable=self.username)
+        self.usernameEntry.grid(row=4, column=3, sticky=tk.W, columnspan=2)
+
+        # Password Entry
+        self.passwordLabel = tk.Label(self, text="Enter Password: ", font=("Segoe UI", 11)).grid(row=5, column=0, sticky=tk.W, columnspan=3)
+        self.passwordEntry = tk.Entry(self, show="*", textvariable=self.password1)
+        self.passwordEntry.grid(row=5, column=3, columnspan=2)
+        
+        # Password Re-Entry
+        self.passwordLabel = tk.Label(self, text="Re-enter Password: ", font=("Segoe UI", 11)).grid(row=6, column=0, sticky=tk.W, columnspan=3)
+        self.passwordEntry = tk.Entry(self, show="*", textvariable=self.password2)
+        self.passwordEntry.grid(row=6, column=3, columnspan=2)
+
+        # Role Selection
+        tk.Label(self, text="").grid(row=7, column=0)    # Equivalent to empty line
+        self.adminRadioButton = tk.Radiobutton(self, text="Administrator", variable=self.userType, value="Admin", font=("Segoe UI", 11)).grid(row=8, column=0, sticky=tk.W, columnspan=3)
+        self.employeeRadioButton = tk.Radiobutton(self, text="Employee", variable=self.userType, value="Employee", font=("Segoe UI", 11)).grid(row=8, column=3, sticky=tk.E, columnspan=2)
+        
+        # Submit Button
+        tk.Label(self, text="").grid(row=9, column=0, columnspan=2)    # Equivalent to empty line
+        self.submitButton = tk.Button(self, text="Register", height="2", width="35", command=self.register).grid(row=10, column=0, columnspan=5)
+
+        # Login Button
+        tk.Label(self, text="").grid(row=11, column=0)    # Equivalent to empty line
+        self.loginButton = tk.Button(self, text="Sign In", height="1", width="15", command=lambda: controller.show_frame(Login)).grid(row=12, column=0, columnspan=2)
+
+        # Back Button
+        tk.Label(self, text="      ").grid(row=12, column=2)    # Equivalent to empty column
+        self.backButton = tk.Button(self, text="Back", height="1", width="15", command=lambda: controller.show_frame(Homepage)).grid(row=12, column=3, columnspan=2)
+
+
+    def register(self):
+        search = (self.username.get(),)
+        inputData = (self.username.get(), self.password1.get())
+
+        if self.username.get() == "" or self.password1.get() == "" or self.password2.get() == "" or self.userType == "":
+            messagebox.showerror("Required Fields", "Please input all required fields.")
+            return
+
+        if self.password1.get() != self.password2.get():
+            messagebox.showerror("Passwords Unmatched", "Please enter the same password in both password fields.")
+            return
+
+        try:
+            if self.userType.get() == "Admin":
+                if adminLoginDB.search(search) == 0:    # Call function in Database Class
+                    adminLoginDB.insert(inputData)
+                    messagebox.showinfo("Successful", "Register Successfully!")
+                else:
+                    messagebox.showwarning("Warning", "Username already Exists!")
+            elif self.userType.get() == "Employee":
+                if employeeLoginDB.search(search) == 0:
+                    employeeLoginDB.insert(inputData)
+                    messagebox.showinfo("Successful", "Register Successfully!")
+                else:
+                    messagebox.showwarning("Warning", "Username already Exists!")
+        except IndexError:
+            messagebox.showerror("Error", "Wrong Credentials")
+
 
 
 # Start App

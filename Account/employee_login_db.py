@@ -18,19 +18,36 @@ class EmployeeLoginDB:
             print("Failed to connect to database.")
 
 
-    def validateData(self, data, inputData):
-        self.cursor.execute("SELECT * FROM EmployeeLogin WHERE employee_username = (?)", data)    # Search by username
+    def insert(self, inputData):
+        self.cursor.execute("INSERT INTO EmployeeLogin (employee_username, employee_password) VALUES (?, ?)",
+                            (inputData[0], inputData[1]))
+        self.conn.commit()
+
+
+    def search(self, search):
+        self.cursor.execute("SELECT * FROM EmployeeLogin WHERE employee_username = (?)", search)    # Search by username
 
         # Fetch the record
-        row = self.cursor.fetchone()
-        
-        # No record find
-        if row == None:
-            return 1
+        rows = self.cursor.fetchall()
 
-        # Compare the provided password with database
-        if row[2] == inputData[1]:
-            return 0    # Password correct    
+        if rows == []:
+            return 0    # No record found
+        else:
+            return 1    # Record found
+
+
+    def validate(self, search, inputData):
+        self.cursor.execute("SELECT * FROM EmployeeLogin WHERE employee_username = (?)", search)    # Search by username
+
+        # Fetch the record
+        rows = self.cursor.fetchall()
+        
+        if rows == []:
+            return 0    # No record found
+
+        # Compare passwords
+        if rows[0][2] == inputData[1]:
+            return 1    # Password correct    
         else:
             return 2    # Password incorrect
         
