@@ -97,7 +97,7 @@ class Login(tk.Frame):
         
         # Submit Button
         tk.Label(self, text="").grid(row=8, column=0, columnspan=2)    # Equivalent to empty line
-        self.submitButton = tk.Button(self, text="Login", height="2", width="35", command=self.validate).grid(row=9, column=0, columnspan=5)
+        self.submitButton = tk.Button(self, text="Login", height="2", width="35", command=lambda: self.validate(controller)).grid(row=9, column=0, columnspan=5)
 
         # Register Button
         tk.Label(self, text="").grid(row=10, column=0)    # Equivalent to empty line
@@ -109,7 +109,7 @@ class Login(tk.Frame):
     
 
     # Reference: A Simple Login System With Python & Tkinter - https://medium.com/satyam-kulkarni/a-simple-login-system-with-python-tkinter-73e4c90820d7
-    def validate(self):      
+    def validate(self, controller):      
         search = (self.username.get(),)
         inputData = (self.username.get(), self.password.get())
 
@@ -120,14 +120,14 @@ class Login(tk.Frame):
         try:
             if self.userType.get() == "Admin":
                 if adminLoginDB.validate(search, inputData) == 1:    # Call function in Database Class
-                    messagebox.showinfo("Successful", "Login Successfully!")
+                    controller.show_frame(Dashboard)
                 elif adminLoginDB.validate(search, inputData) == 0:
                     messagebox.showerror("Error", "User Does Not Exist!")
                 else:
                     messagebox.showerror("Error", "Password Incorrect!")
             elif self.userType.get() == "Employee":
                 if employeeLoginDB.validate(search, inputData) == 1:
-                    messagebox.showinfo("Successful", "Login Successfully!")
+                    controller.show_frame(Dashboard)
                 elif employeeLoginDB.validate(search, inputData) == 0:
                     messagebox.showerror("Error", "User Does Not Exist!")
                 else:
@@ -150,7 +150,6 @@ class Register(tk.Frame):
         self.username = tk.StringVar()
         self.password1 = tk.StringVar()
         self.password2 = tk.StringVar()
-
 
         # Username Entry
         tk.Label(self, text="").grid(row=3, column=0)    # Equivalent to empty line
@@ -213,6 +212,8 @@ class Register(tk.Frame):
                     messagebox.showwarning("Warning", "Username already Exists!")
         except IndexError:
             messagebox.showerror("Error", "Wrong Credentials")
+
+
 
 
 
