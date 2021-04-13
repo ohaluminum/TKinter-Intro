@@ -1,7 +1,7 @@
 import pyodbc
 
 
-class Database:
+class CourseRecordDB:
     def __init__(self):
         self.conn = pyodbc.connect(
             "Driver={SQL Server Native Client 11.0};"
