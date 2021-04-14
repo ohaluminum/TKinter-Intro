@@ -17,7 +17,6 @@ class CourseDB:
     def fetch(self):
         self.cursor.execute("SELECT * FROM Course")
         rows = self.cursor.fetchall()
-        print(rows[0])
         return rows
 
 
