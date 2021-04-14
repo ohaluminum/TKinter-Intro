@@ -3,14 +3,14 @@ from tkinter import messagebox
 from PIL import ImageTk, Image
 from Account.employee_login_db import EmployeeLoginDB
 from Account.admin_login_db import AdminLoginDB
-from Course.course_record_db import CourseRecordDB
+from Course.course_db import CourseDB
 
 # Reference: Tkinter Application to Switch Between Different Page Frames - https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
 
 # Database context
 employeeLoginDB = EmployeeLoginDB()
 adminLoginDB = AdminLoginDB()
-db = CourseRecordDB()
+db = CourseDB()
 
 # Application Class
 class App(tk.Tk):
@@ -24,14 +24,14 @@ class App(tk.Tk):
 
         # Creating a container
         container = tk.Frame(self)
-        container.place(relx=0.5, rely=0.5, anchor="center")    # container.pack(side="top", fill="both", expand = True)
+        container.place(relx=0.5, rely=0.5, anchor="center")
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
         # Initializing an empty frame array
         self.frames = {}
 
-        for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard, CourseRecord): # CourseRecord
+        for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard, Course): # CourseRecord
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -368,7 +368,7 @@ class CourseDashboard(tk.Frame):
         tk.Label(self, text="").grid(row=1, column=0)    # Equivalent to empty line
         tk.Label(self, text="").grid(row=2, column=0)    # Equivalent to empty line
         tk.Label(self, text="                                                     ").grid(row=3, column=0)
-        tk.Button(self, text="Course Records", height="8", width="20", command=lambda: controller.show_frame(CourseRecord)).grid(row=3, column=1)
+        tk.Button(self, text="Course Records", height="8", width="20", command=lambda: controller.show_frame(Course)).grid(row=3, column=1)
 
         # 2. Student Course Status
         tk.Label(self, text="                                                                   ").grid(row=3, column=2, columnspan=5)    
@@ -469,7 +469,7 @@ class AdminDashboard(tk.Frame):
 
 
 # Course Record Window
-class CourseRecord(tk.Frame):
+class Course(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
@@ -480,7 +480,7 @@ class CourseRecord(tk.Frame):
         # Create widgets
         self.create_widgets(controller)
 
-        # Init selected item var
+        # Store selected item
         self.selected_item = 0
         
         # Populate initial list
@@ -488,53 +488,60 @@ class CourseRecord(tk.Frame):
 
     
     def create_widgets(self, controller):
-
         # Employee ID
         self.employeeid_text = tk.StringVar()
         self.employeeid_label = tk.Label(self, text='Employee ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
-        self.employeeid_entry = tk.Entry(self, textvariable=self.employeeid_text).grid(row=2, column=1)
+        self.employeeid_entry = tk.Entry(self, textvariable=self.employeeid_text)
+        self.employeeid_entry.grid(row=2, column=1)
         tk.Label(self, text="          ").grid(row=2, column=2)
         
         # Student ID
         self.studentid_text = tk.StringVar()
         self.studentid_label = tk.Label(self, text='Student ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
-        self.studentid_entry = tk.Entry(self, textvariable=self.studentid_text).grid(row=2, column=4)
+        self.studentid_entry = tk.Entry(self, textvariable=self.studentid_text)
+        self.studentid_entry.grid(row=2, column=4)
         tk.Label(self, text="          ").grid(row=2, column=5)
 
         # Genre ID
         self.genreid_text = tk.StringVar()
         self.genreid_label = tk.Label(self, text='Genre ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
-        self.genreid_entry = tk.Entry(self, textvariable=self.genreid_text).grid(row=2, column=7)
+        self.genreid_entry = tk.Entry(self, textvariable=self.genreid_text)
+        self.genreid_entry.grid(row=2, column=7)
         tk.Label(self, text="          ").grid(row=2, column=8)
 
         # Course Price ID
         self.coursepriceid_text = tk.StringVar()
         self.coursepriceid_label = tk.Label(self, text='Course Price ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
-        self.coursepriceid_entry = tk.Entry(self, textvariable=self.coursepriceid_text).grid(row=3, column=1)
+        self.coursepriceid_entry = tk.Entry(self, textvariable=self.coursepriceid_text)
+        self.coursepriceid_entry.grid(row=3, column=1)
         tk.Label(self, text="          ").grid(row=3, column=2)
 
         # Course Number ID
         self.coursenumberid_text = tk.StringVar()
         self.coursenumberid_label = tk.Label(self, text='Course Number ID: ', font=("Segoe UI", 11)).grid(row=3, column=3, sticky=tk.W)
-        self.coursenumberid_entry = tk.Entry(self, textvariable=self.coursenumberid_text).grid(row=3, column=4)
+        self.coursenumberid_entry = tk.Entry(self, textvariable=self.coursenumberid_text)
+        self.coursenumberid_entry.grid(row=3, column=4)
         tk.Label(self, text="          ").grid(row=3, column=5)
 
         # Course Name
         self.course_name_text = tk.StringVar()
         self.course_name_label = tk.Label(self, text='Course Name: ', font=("Segoe UI", 11)).grid(row=3, column=6, sticky=tk.W)
-        self.course_name_entry = tk.Entry(self, textvariable=self.course_name_text).grid(row=3, column=7)
+        self.course_name_entry = tk.Entry(self, textvariable=self.course_name_text)
+        self.course_name_entry.grid(row=3, column=7)
         tk.Label(self, text="          ").grid(row=3, column=8)
 
         # Course Date
         self.course_date_text = tk.StringVar()
         self.course_date_label = tk.Label(self, text='Course Date: ', font=("Segoe UI", 11)).grid(row=4, column=0, sticky=tk.W)
-        self.course_date_entry = tk.Entry(self, textvariable=self.course_date_text).grid(row=4, column=1)
+        self.course_date_entry = tk.Entry(self, textvariable=self.course_date_text)
+        self.course_date_entry.grid(row=4, column=1)
         tk.Label(self, text="          ").grid(row=4, column=2)
 
         # Course Time
         self.course_time_text = tk.StringVar()
         self.course_time_label = tk.Label(self, text='Course Time: ', font=("Segoe UI", 11)).grid(row=4, column=3, sticky=tk.W)
-        self.course_time_entry = tk.Entry(self, textvariable=self.course_time_text).grid(row=4, column=4)
+        self.course_time_entry = tk.Entry(self, textvariable=self.course_time_text)
+        self.course_time_entry.grid(row=4, column=4)
         tk.Label(self, text="          ").grid(row=4, column=5)
 
         # Buttons
@@ -551,7 +558,7 @@ class CourseRecord(tk.Frame):
         self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
         self.exit_btn.grid(row=6, column=4, sticky=tk.E)
 
-        # Courses List
+        # Course List
         tk.Label(self, text="").grid(row=7, column=0)
         self.courses_list = tk.Listbox(self, height=7, width=130, border=1)
         self.courses_list.grid(row=8, column=0, columnspan=8, rowspan=2)
@@ -570,18 +577,19 @@ class CourseRecord(tk.Frame):
         # Logout Button
         tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
 
-        # Set scrollbar to courses
-        self.courses_list.configure(yscrollcommand=self.scrollbar.set)      #?
-        self.scrollbar.configure(command=self.courses_list.yview)           #?
+        # Set Scroll to Listbox
+        self.courses_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.courses_list.yview)
 
         # Bind select
-        self.courses_list.bind('<<ListboxSelect>>', self.select_item)       #?
+        self.courses_list.bind('<<ListboxSelect>>', self.select_item)
 
         
     def select_item(self, event):
         try:
             # Get index
             index = self.courses_list.curselection()[0]
+            
             # Get selected item
             self.selected_item = self.courses_list.get(index)
 
@@ -602,59 +610,51 @@ class CourseRecord(tk.Frame):
             self.course_date_entry.insert(tk.END, self.selected_item[7])
             self.course_time_entry.delete(0, tk.END)
             self.course_time_entry.insert(tk.END, self.selected_item[8])
+
         except IndexError:
             pass
     
+
     # Add new item to the DB
     def add_item(self):
-        print("Add")
-        '''
+        # Prevent empty input
         if self.employeeid_text.get() == '' or self.studentid_text.get() == '' or self.genreid_text.get() == '' \
-                or self.coursepriceid_text.get() == '' or self.coursenumberid_text.get() == '' \
-                or self.course_name_text.get() == '' or self.course_date_text.get() == '' \
-                or self.course_time_text.get() == '':
+                                            or self.coursepriceid_text.get() == '' or self.coursenumberid_text.get() == '' \
+                                            or self.course_name_text.get() == '' or self.course_date_text.get() == '' \
+                                            or self.course_time_text.get() == '':
             messagebox.showerror('Required Fields', 'Please input all required fields.')
             return
         
-        # Insert into our database
+        # Insert into database
         db.insert(self.employeeid_text.get(), self.studentid_text.get(), self.genreid_text.get(),
                   self.coursepriceid_text.get(), self.coursenumberid_text.get(), self.course_name_text.get(),
                   self.course_date_text.get(), self.course_time_text.get())
 
-        # Clear the list
-        self.courses_list.delete(0, tk.END)
-        # Insert new record into the list
-        self.courses_list.insert(tk.END, (self.employeeid_text.get(), self.studentid_text.get(), self.genreid_text.get(),
-                  self.coursepriceid_text.get(), self.coursenumberid_text.get(), self.course_name_text.get(),
-                  self.course_date_text.get(), self.course_time_text.get()))
+        # Clear entry box
         self.clear_text()
+
+        # Reload the listbox
         self.populate_list()
-        '''
 
 
     def remove_item(self):
-        print("Remove")
-        '''
+        # Pass in the ID of selected item
         db.remove(self.selected_item[0])
         self.clear_text()
         self.populate_list()
-        '''
 
 
     def update_item(self):
-        print("Update")
-        '''
         db.update(self.selected_item[0], self.employeeid_text.get(), self.studentid_text.get(), self.genreid_text.get(),
                   self.coursepriceid_text.get(), self.coursenumberid_text.get(), self.course_name_text.get(),
                   self.course_date_text.get(), self.course_time_text.get())
+        
         self.clear_text()
         self.populate_list()
-        '''
 
 
+    # Clear entry box
     def clear_text(self):
-        print("Clear")
-        '''
         self.employeeid_entry.delete(0, tk.END)
         self.studentid_entry.delete(0, tk.END)
         self.genreid_entry.delete(0, tk.END)
@@ -663,10 +663,9 @@ class CourseRecord(tk.Frame):
         self.course_name_entry.delete(0, tk.END)
         self.course_date_entry.delete(0, tk.END)
         self.course_time_entry.delete(0, tk.END)
-        '''
+
 
     def populate_list(self):
-
         # Clear old item so that records doesn't double populate
         self.courses_list.delete(0, tk.END)
 
@@ -676,7 +675,6 @@ class CourseRecord(tk.Frame):
                     row.course_date, row.course_time]
             self.courses_list.insert(tk.END, line)
         
-
 
 # Start App
 if __name__ == "__main__":
