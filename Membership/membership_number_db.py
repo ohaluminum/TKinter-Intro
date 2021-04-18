@@ -18,6 +18,21 @@ class MembershipNumberDB:
         self.cursor.execute("SELECT * FROM MembershipNumber")
         rows = self.cursor.fetchall()
         return rows
+
+
+    def insert(self, membership_number):
+        self.cursor.execute("INSERT INTO MembershipNumber (membership_number) VALUES (?)", (membership_number,))
+        self.conn.commit()
+
+
+    def remove(self, membershipnumberid):
+        self.cursor.execute("DELETE FROM MembershipNumber WHERE membershipnumberid=?", (membershipnumberid,))
+        self.conn.commit()
+
+
+    def update(self, membershipnumberid, membership_number):
+        self.cursor.execute("UPDATE MembershipNumber SET membership_number = ? WHERE membershipnumberid = ?", (membershipnumberid, ))
+        self.conn.commit()
         
 
     def __del__(self):

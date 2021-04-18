@@ -4,8 +4,10 @@ from PIL import ImageTk, Image
 from Account.employee_login_db import EmployeeLoginDB
 from Account.admin_login_db import AdminLoginDB
 from Course.course_db import CourseDB
-from Membership.membership_status_db import MembershipStatusDB
-from Membership.membership_type_db import MembershipTypeDB
+from Membership.membership_db import MembershipDB
+from Membership.membership_record_db import MembershipRecordDB
+from Enrollment.enrollment_db import EnrollmentDB
+from Enrollment.enrollment_record_db import EnrollmentRecordDB
 
 # Reference: Tkinter Application to Switch Between Different Page Frames - https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
 
@@ -13,8 +15,11 @@ from Membership.membership_type_db import MembershipTypeDB
 employeeLoginDB = EmployeeLoginDB()
 adminLoginDB = AdminLoginDB()
 courseDB = CourseDB()
-membershipStatusDB = MembershipStatusDB()
-membershipTypeDB = MembershipTypeDB()
+membershipDB = MembershipDB()
+membershipRecordDB = MembershipRecordDB()
+enrollmentDB = EnrollmentDB()
+enrollmentRecordDB = EnrollmentRecordDB()
+
 
 # Application Class
 class App(tk.Tk):
@@ -35,14 +40,14 @@ class App(tk.Tk):
         # Initializing an empty frame array
         self.frames = {}
 
-        for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, MembershipDashboard, EventDashboard, AdminDashboard, 
-                            Course, MembershipStatus, MembershipType): # CourseRecord
+        for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard, 
+                            Course, MembershipRecord, Membership, EnrollmentRecord, Enrollment): # CourseRecord
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
         # Display the current page
-        self.show_frame(Homepage)
+        self.show_frame(Dashboard)
     
     def show_frame(self, curr):
         frame = self.frames[curr]
@@ -262,14 +267,14 @@ class Dashboard(tk.Frame):
         
         # 5. Membership Button
         tk.Label(self, text="      ").grid(row=3, column=7)    
-        tk.Button(self, text="Membership", height="3", width="20", command=lambda: controller.show_frame(MembershipDashboard)).grid(row=3, column=8)
+        tk.Button(self, text="Membership", height="3", width="20", command=lambda: controller.show_frame(MembershipRecord)).grid(row=3, column=8)
     
         # 6. Enrollment Button
         tk.Label(self, text="").grid(row=4, column=0)  
         tk.Label(self, text="").grid(row=5, column=0)  
         tk.Label(self, text="").grid(row=6, column=0)  
         tk.Label(self, text="").grid(row=7, column=0)  
-        tk.Button(self, text="Enrollment", height="3", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=8, column=0)
+        tk.Button(self, text="Enrollment", height="3", width="20", command=lambda: controller.show_frame(EnrollmentRecord)).grid(row=8, column=0)
 
         # 7. Reservation/Event Button
         tk.Label(self, text="      ").grid(row=8, column=1)    
@@ -277,15 +282,15 @@ class Dashboard(tk.Frame):
 
         # 8. Bill Button
         tk.Label(self, text="      ").grid(row=8, column=3)    
-        tk.Button(self, text="Bill Record", height="3", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=8, column=4)
+        tk.Button(self, text="Bill", height="3", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=8, column=4)
 
         # 9. Admin/Owner Button
         tk.Label(self, text="      ").grid(row=8, column=5)    
-        tk.Button(self, text="Admin/Owner Information", height="3", width="20", command=lambda: controller.show_frame(AdminDashboard)).grid(row=8, column=6)
+        tk.Button(self, text="Admin/Owner", height="3", width="20", command=lambda: controller.show_frame(AdminDashboard)).grid(row=8, column=6)
 
         # 10. Vendor Button
         tk.Label(self, text="      ").grid(row=8, column=7)    
-        tk.Button(self, text="Vendor Information", height="3", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=8, column=8)
+        tk.Button(self, text="Vendor", height="3", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=8, column=8)
 
         # 11. Logout Button
         tk.Label(self, text="").grid(row=9, column=0)    
@@ -398,8 +403,8 @@ class InventoryDashboard(tk.Frame):
         self.header = tk.Label(self, text="Inventory Infromation", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
 
         # 1. Merchandise Records
-        tk.Label(self, text="").grid(row=1, column=0)    # Equivalent to empty line
-        tk.Label(self, text="").grid(row=2, column=0)    # Equivalent to empty line
+        tk.Label(self, text="").grid(row=1, column=0)
+        tk.Label(self, text="").grid(row=2, column=0)
         tk.Label(self, text="                                                     ").grid(row=3, column=0)
         tk.Button(self, text="Merchandise Records", height="8", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=3, column=1)
 
@@ -415,39 +420,6 @@ class InventoryDashboard(tk.Frame):
 
         # 5. Logout Button
         tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=6, column=7, sticky=tk.E)
-
-
-# Membership Sub-Dashboard Window
-class MembershipDashboard(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-
-        # Create membership dashboard page element
-        self.header = tk.Label(self, text="Membership Infromation", font=("Segoe UI", 18, "bold")).pack()   # The first parameter: where to put the element
-
-        # 1. Membership Records
-        tk.Label(self, text="").pack()
-        tk.Button(self, text="Membership", height="2", width="20", command=lambda: controller.show_frame(Homepage)).pack()
-
-        # 2. Membership Status Records
-        tk.Label(self, text="").pack()
-        tk.Button(self, text="Membership Status", height="2", width="20", command=lambda: controller.show_frame(MembershipStatus)).pack()
-
-        # 3. Membership Type Records
-        tk.Label(self, text="").pack()
-        tk.Button(self, text="Membership Type", height="2", width="20", command=lambda: controller.show_frame(MembershipType)).pack()
-
-        # 4. Membership Number Records
-        tk.Label(self, text="").pack()
-        tk.Button(self, text="Membership Number", height="2", width="20", command=lambda: controller.show_frame(Homepage)).pack()
-
-        # 4. Home Dashboard Button
-        tk.Label(self, text="").pack()
-        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).pack()
-
-        # 5. Logout Button
-        tk.Label(self, text="").pack()
-        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).pack()
 
 
 # Event Sub-Dashboard Window
@@ -721,15 +693,17 @@ class Course(tk.Frame):
             line = [row.courseid, row.employeeid, row.studentid, row.genreid, row.coursepriceid, row.coursenumberid, row.course_name,
                     row.course_date, row.course_time]
             self.courses_list.insert(tk.END, line)
-        
 
-# Membership Status Window
-class MembershipStatus(tk.Frame):
+      
+# ------------------------------------------- MEMBERSHIP ------------------------------------------------ 
+
+# Membership Record Window
+class MembershipRecord(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        # Create membership status page element
-        self.header = tk.Label(self, text="Membership Status Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        # Create membership record page element
+        self.header = tk.Label(self, text="Membership Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
         tk.Label(self, text="").grid(row=1, column=0)
 
         # Create widgets
@@ -743,10 +717,10 @@ class MembershipStatus(tk.Frame):
 
         # No Entry and Buttons Needed: Read-only Table
 
-        # Membership Status List
+        # Membership Record List
         tk.Label(self, text="").grid(row=7, column=0)
-        self.membership_status_list = tk.Listbox(self, height=7, width=130, border=1)
-        self.membership_status_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+        self.membership_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.membership_list.grid(row=8, column=0, columnspan=8, rowspan=2)
 
         # Create Scrollbar
         self.scrollbar = tk.Scrollbar(self)
@@ -757,33 +731,239 @@ class MembershipStatus(tk.Frame):
         tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
 
         # Parent Dashboard Button
-        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(MembershipDashboard)).grid(row=11, column=1, sticky=tk.W)
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit", height="1", width="10", command=lambda: controller.show_frame(Membership)).grid(row=11, column=2, sticky=tk.W)
 
         # Logout Button
         tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
 
         # Set Scroll to Listbox
-        self.membership_status_list.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.configure(command=self.membership_status_list.yview)
+        self.membership_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.membership_list.yview)
 
         
     def populate_list(self):
         # Clear old item so that records doesn't double populate
-        self.membership_status_list.delete(0, tk.END)
+        self.membership_list.delete(0, tk.END)
 
         # Iterate through the data returned by the fetch method in Database Class
-        for row in membershipStatusDB.fetch():
-            line = [row.membershipstatusid, row.membership_status]
-            self.membership_status_list.insert(tk.END, line)
+        for row in membershipRecordDB.fetch():
+            self.membership_list.insert(tk.END, row)
 
 
-# Membership Type Window
-class MembershipType(tk.Frame):
+# Membership Window
+class Membership(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        # Create membership type page element
-        self.header = tk.Label(self, text="Membership Type Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        # Create membership page element
+        self.header = tk.Label(self, text="Membership Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Student ID
+        self.studentid_text = tk.StringVar()
+        self.studentid_label = tk.Label(self, text='Student ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.studentid_entry = tk.Entry(self, textvariable=self.studentid_text)
+        self.studentid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Membership Status ID
+        self.membershipstatusid_text = tk.StringVar()
+        self.membershipstatusid_label = tk.Label(self, text='Status ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.membershipstatusid_entry = tk.Entry(self, textvariable=self.membershipstatusid_text)
+        self.membershipstatusid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Membership Number ID
+        self.membershipnumberid_text = tk.StringVar()
+        self.membershipnumberid_label = tk.Label(self, text='Number ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.membershipnumberid_entry = tk.Entry(self, textvariable=self.membershipnumberid_text)
+        self.membershipnumberid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Membership Type ID
+        self.membershiptypeid_text = tk.StringVar()
+        self.membershiptypeid_label = tk.Label(self, text='Type ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.membershiptypeid_entry = tk.Entry(self, textvariable=self.membershiptypeid_text)
+        self.membershiptypeid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Membership Fee
+        self.membership_fee_text = tk.StringVar()
+        self.membership_fee_label = tk.Label(self, text='Membership Fee: ', font=("Segoe UI", 11)).grid(row=3, column=3, sticky=tk.W)
+        self.membership_fee_entry = tk.Entry(self, textvariable=self.membership_fee_text)
+        self.membership_fee_entry.grid(row=3, column=4)
+        tk.Label(self, text="          ").grid(row=3, column=5)
+
+        # Start Date
+        self.membership_start_date_text = tk.StringVar()
+        self.membership_start_date_label = tk.Label(self, text='Start Date: ', font=("Segoe UI", 11)).grid(row=3, column=6, sticky=tk.W)
+        self.membership_start_date_entry = tk.Entry(self, textvariable=self.membership_start_date_text)
+        self.membership_start_date_entry.grid(row=3, column=7)
+        tk.Label(self, text="          ").grid(row=3, column=8)
+
+        # End Date
+        self.membership_end_date_text = tk.StringVar()
+        self.membership_end_date_label = tk.Label(self, text='End Date: ', font=("Segoe UI", 11)).grid(row=4, column=0, sticky=tk.W)
+        self.membership_end_date_entry = tk.Entry(self, textvariable=self.membership_end_date_text)
+        self.membership_end_date_entry.grid(row=4, column=1)
+        tk.Label(self, text="          ").grid(row=4, column=2)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Membership List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.membership_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.membership_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(MembershipRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.membership_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.membership_list.yview)
+
+        # Bind select
+        self.membership_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.membership_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.membership_list.get(index)
+
+            # Display data at entry box
+            self.studentid_entry.delete(0, tk.END)
+            self.studentid_entry.insert(tk.END, self.selected_item[1])
+            self.membershipstatusid_entry.delete(0, tk.END)
+            self.membershipstatusid_entry.insert(tk.END, self.selected_item[2])
+            self.membershipnumberid_entry.delete(0, tk.END)
+            self.membershipnumberid_entry.insert(tk.END, self.selected_item[3])
+            self.membershiptypeid_entry.delete(0, tk.END)
+            self.membershiptypeid_entry.insert(tk.END, self.selected_item[4])
+            self.membership_fee_entry.delete(0, tk.END)
+            self.membership_fee_entry.insert(tk.END, self.selected_item[5])
+            self.membership_start_date_entry.delete(0, tk.END)
+            self.membership_start_date_entry.insert(tk.END, self.selected_item[6])
+            self.membership_end_date_entry.delete(0, tk.END)
+            self.membership_end_date_entry.insert(tk.END, self.selected_item[7])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.studentid_text.get() == '' or self.membershipstatusid_text.get() == '' or self.membershipnumberid_text.get() == '' \
+                                            or self.membershiptypeid_text.get() == '' or self.membership_fee_text.get() == '' \
+                                            or self.membership_start_date_text.get() == '' or self.membership_end_date_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        membershipDB.insert(self.studentid_text.get(), self.membershipstatusid_text.get(), self.membershipnumberid_text.get(),
+                        self.membershiptypeid_text.get(), self.membership_fee_text.get(), self.membership_start_date_text.get(),
+                        self.membership_end_date_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+        # Show the message
+        self.notification_label.config(text="New record has been added successfully!")
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        membershipDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        membershipDB.update(self.selected_item[0], self.studentid_text.get(), self.membershipstatusid_text.get(), self.membershipnumberid_text.get(),
+                        self.membershiptypeid_text.get(), self.membership_fee_text.get(), self.membership_start_date_text.get(),
+                        self.membership_end_date_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+
+
+    # Clear entry box
+    def clear_text(self):
+        self.studentid_entry.delete(0, tk.END)
+        self.membershipstatusid_entry.delete(0, tk.END)
+        self.membershipnumberid_entry.delete(0, tk.END)
+        self.membershiptypeid_entry.delete(0, tk.END)
+        self.membership_fee_entry.delete(0, tk.END)
+        self.membership_start_date_entry.delete(0, tk.END)
+        self.membership_end_date_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.membership_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in membershipDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]]
+            self.membership_list.insert(tk.END, line)
+
+
+# ------------------------------------------- ENROLLMENT ------------------------------------------------
+
+# Enrollment Record Window
+class EnrollmentRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create enrollment record page element
+        self.header = tk.Label(self, text="Enrollment Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
         tk.Label(self, text="").grid(row=1, column=0)
 
         # Create widgets
@@ -797,10 +977,10 @@ class MembershipType(tk.Frame):
 
         # No Entry and Buttons Needed: Read-only Table
 
-        # Membership Type List
+        # Enrollment Record List
         tk.Label(self, text="").grid(row=7, column=0)
-        self.membership_type_list = tk.Listbox(self, height=7, width=130, border=1)
-        self.membership_type_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+        self.enrollment_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.enrollment_list.grid(row=8, column=0, columnspan=8, rowspan=2)
 
         # Create Scrollbar
         self.scrollbar = tk.Scrollbar(self)
@@ -811,25 +991,205 @@ class MembershipType(tk.Frame):
         tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
 
         # Parent Dashboard Button
-        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(MembershipDashboard)).grid(row=11, column=1, sticky=tk.W)
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit", height="1", width="10", command=lambda: controller.show_frame(Enrollment)).grid(row=11, column=2, sticky=tk.W)
 
         # Logout Button
         tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
 
         # Set Scroll to Listbox
-        self.membership_type_list.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.configure(command=self.membership_type_list.yview)
+        self.enrollment_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.enrollment_list.yview)
 
         
     def populate_list(self):
         # Clear old item so that records doesn't double populate
-        self.membership_type_list.delete(0, tk.END)
+        self.enrollment_list.delete(0, tk.END)
 
         # Iterate through the data returned by the fetch method in Database Class
-        for row in membershipTypeDB.fetch():
-            line = [row.membershiptypeid, row.membership_type]
-            self.membership_type_list.insert(tk.END, line)
+        for row in enrollmentRecordDB.fetch():
+            self.enrollment_list.insert(tk.END, row)
 
+
+# Enrollment Window
+class Enrollment(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create enrollment page element
+        self.header = tk.Label(self, text="Enrollment Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Student ID
+        self.studentid_text = tk.StringVar()
+        self.studentid_label = tk.Label(self, text='Student ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.studentid_entry = tk.Entry(self, textvariable=self.studentid_text)
+        self.studentid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Enrollment Status ID
+        self.enrollmentstatusid_text = tk.StringVar()
+        self.enrollmentstatusid_label = tk.Label(self, text='Status ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.enrollmentstatusid_entry = tk.Entry(self, textvariable=self.enrollmentstatusid_text)
+        self.enrollmentstatusid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Enrollment Number ID
+        self.enrollmentnumberid_text = tk.StringVar()
+        self.enrollmentnumberid_label = tk.Label(self, text='Number ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.enrollmentnumberid_entry = tk.Entry(self, textvariable=self.enrollmentnumberid_text)
+        self.enrollmentnumberid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Enrollment Period ID
+        self.enrollmentperiodid_text = tk.StringVar()
+        self.enrollmentperiodid_label = tk.Label(self, text='Period ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.enrollmentperiodid_entry = tk.Entry(self, textvariable=self.enrollmentperiodid_text)
+        self.enrollmentperiodid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Enrollment Date
+        self.enrollment_date_text = tk.StringVar()
+        self.enrollment_date_label = tk.Label(self, text='Membership Fee: ', font=("Segoe UI", 11)).grid(row=3, column=3, sticky=tk.W)
+        self.enrollment_date_entry = tk.Entry(self, textvariable=self.enrollment_date_text)
+        self.enrollment_date_entry.grid(row=3, column=4)
+        tk.Label(self, text="          ").grid(row=3, column=5)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Membership List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.enrollment_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.enrollment_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(MembershipRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.enrollment_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.enrollment_list.yview)
+
+        # Bind select
+        self.enrollment_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.enrollment_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.enrollment_list.get(index)
+
+            # Display data at entry box
+            self.studentid_entry.delete(0, tk.END)
+            self.studentid_entry.insert(tk.END, self.selected_item[1])
+            self.enrollmentstatusid_entry.delete(0, tk.END)
+            self.enrollmentstatusid_entry.insert(tk.END, self.selected_item[2])
+            self.enrollmentnumberid_entry.delete(0, tk.END)
+            self.enrollmentnumberid_entry.insert(tk.END, self.selected_item[3])
+            self.enrollmentperiodid_entry.delete(0, tk.END)
+            self.enrollmentperiodid_entry.insert(tk.END, self.selected_item[4])
+            self.enrollment_date_entry.delete(0, tk.END)
+            self.enrollment_date_entry.insert(tk.END, self.selected_item[5])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.studentid_text.get() == '' or self.enrollmentstatusid_text.get() == '' or self.enrollmentnumberid_text.get() == '' \
+                                            or self.enrollmentperiodid_text.get() == '' or self.enrollment_date_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        enrollmentDB.insert(self.studentid_text.get(), self.enrollmentstatusid_text.get(), self.enrollmentnumberid_text.get(),
+                        self.enrollmentperiodid_text.get(), self.enrollment_date_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+        # Show the message
+        self.notification_label.config(text="New record has been added successfully!")
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        enrollmentDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        enrollmentDB.update(self.selected_item[0], self.studentid_text.get(), self.enrollmentstatusid_text.get(), self.enrollmentnumberid_text.get(),
+                        self.enrollmentperiodid_text.get(), self.enrollment_date_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+
+
+    # Clear entry box
+    def clear_text(self):
+        self.studentid_entry.delete(0, tk.END)
+        self.enrollmentstatusid_entry.delete(0, tk.END)
+        self.enrollmentnumberid_entry.delete(0, tk.END)
+        self.enrollmentperiodid_entry.delete(0, tk.END)
+        self.enrollment_date_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.enrollment_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in enrollmentDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4], row[5]]
+            self.enrollment_list.insert(tk.END, line)
 
 
 
