@@ -15,15 +15,15 @@ class EnrollmentRecordDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT Student.first_name, Student.last_name, "
-                            "EnrollmentStatus.enrollment_status, EnrollmentNumber.enrollment_number, "
-                            "EnrollmentPeriod.enrollment_period, Enrollment.enrollment_date "
-                            "FROM Enrollment "
-                            "INNER JOIN Student ON Enrollment.studentid = Student.studentid "
-                            "INNER JOIN EnrollmentStatus ON Enrollment.enrollmentstatusid = EnrollmentStatus.enrollmentstatusid "
-                            "INNER JOIN EnrollmentNumber ON Enrollment.enrollmentnumberid = EnrollmentNumber.enrollmentnumberid "
-                            "INNER JOIN EnrollmentPeriod ON Enrollment.enrollmentperiodid = EnrollmentPeriod.enrollmentperiodid "
-                            "ORDER BY Student.first_name"
+        self.cursor.execute("SELECT Student.first_name, Student.last_name, \
+                            EnrollmentStatus.enrollment_status, EnrollmentNumber.enrollment_number, \
+                            EnrollmentPeriod.enrollment_period, Enrollment.enrollment_date \
+                            FROM Enrollment \
+                            INNER JOIN Student ON Enrollment.studentid = Student.studentid \
+                            INNER JOIN EnrollmentStatus ON Enrollment.enrollmentstatusid = EnrollmentStatus.enrollmentstatusid \
+                            INNER JOIN EnrollmentNumber ON Enrollment.enrollmentnumberid = EnrollmentNumber.enrollmentnumberid \
+                            INNER JOIN EnrollmentPeriod ON Enrollment.enrollmentperiodid = EnrollmentPeriod.enrollmentperiodid \
+                            ORDER BY Student.first_name"
                             )
         rows = self.cursor.fetchall()
         return rows
