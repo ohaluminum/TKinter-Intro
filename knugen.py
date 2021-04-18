@@ -12,7 +12,7 @@ from Membership.membership_type_db import MembershipTypeDB
 # Database context
 employeeLoginDB = EmployeeLoginDB()
 adminLoginDB = AdminLoginDB()
-db = CourseDB()
+courseDB = CourseDB()
 membershipStatusDB = MembershipStatusDB()
 membershipTypeDB = MembershipTypeDB()
 
@@ -35,14 +35,14 @@ class App(tk.Tk):
         # Initializing an empty frame array
         self.frames = {}
 
-        for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard, 
+        for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, MembershipDashboard, EventDashboard, AdminDashboard, 
                             Course, MembershipStatus, MembershipType): # CourseRecord
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
         # Display the current page
-        self.show_frame(Dashboard)
+        self.show_frame(Homepage)
     
     def show_frame(self, curr):
         frame = self.frames[curr]
@@ -262,7 +262,7 @@ class Dashboard(tk.Frame):
         
         # 5. Membership Button
         tk.Label(self, text="      ").grid(row=3, column=7)    
-        tk.Button(self, text="Membership", height="3", width="20", command=lambda: controller.show_frame(MembershipType)).grid(row=3, column=8)
+        tk.Button(self, text="Membership", height="3", width="20", command=lambda: controller.show_frame(MembershipDashboard)).grid(row=3, column=8)
     
         # 6. Enrollment Button
         tk.Label(self, text="").grid(row=4, column=0)  
@@ -415,6 +415,39 @@ class InventoryDashboard(tk.Frame):
 
         # 5. Logout Button
         tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=6, column=7, sticky=tk.E)
+
+
+# Membership Sub-Dashboard Window
+class MembershipDashboard(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create membership dashboard page element
+        self.header = tk.Label(self, text="Membership Infromation", font=("Segoe UI", 18, "bold")).pack()   # The first parameter: where to put the element
+
+        # 1. Membership Records
+        tk.Label(self, text="").pack()
+        tk.Button(self, text="Membership", height="2", width="20", command=lambda: controller.show_frame(Homepage)).pack()
+
+        # 2. Membership Status Records
+        tk.Label(self, text="").pack()
+        tk.Button(self, text="Membership Status", height="2", width="20", command=lambda: controller.show_frame(MembershipStatus)).pack()
+
+        # 3. Membership Type Records
+        tk.Label(self, text="").pack()
+        tk.Button(self, text="Membership Type", height="2", width="20", command=lambda: controller.show_frame(MembershipType)).pack()
+
+        # 4. Membership Number Records
+        tk.Label(self, text="").pack()
+        tk.Button(self, text="Membership Number", height="2", width="20", command=lambda: controller.show_frame(Homepage)).pack()
+
+        # 4. Home Dashboard Button
+        tk.Label(self, text="").pack()
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).pack()
+
+        # 5. Logout Button
+        tk.Label(self, text="").pack()
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).pack()
 
 
 # Event Sub-Dashboard Window
@@ -635,9 +668,9 @@ class Course(tk.Frame):
             return
         
         # Insert into database
-        db.insert(self.employeeid_text.get(), self.studentid_text.get(), self.genreid_text.get(),
-                  self.coursepriceid_text.get(), self.coursenumberid_text.get(), self.course_name_text.get(),
-                  self.course_date_text.get(), self.course_time_text.get())
+        courseDB.insert(self.employeeid_text.get(), self.studentid_text.get(), self.genreid_text.get(),
+                        self.coursepriceid_text.get(), self.coursenumberid_text.get(), self.course_name_text.get(),
+                        self.course_date_text.get(), self.course_time_text.get())
 
         # Clear entry box
         self.clear_text()
@@ -651,16 +684,16 @@ class Course(tk.Frame):
 
     def remove_item(self):
         # Pass in the ID of selected item
-        db.remove(self.selected_item[0])
+        courseDB.remove(self.selected_item[0])
         self.clear_text()
         self.populate_list()
         self.notification_label.config(text="Selected record has been deleted successfully!")
 
 
     def update_item(self):
-        db.update(self.selected_item[0], self.employeeid_text.get(), self.studentid_text.get(), self.genreid_text.get(),
-                  self.coursepriceid_text.get(), self.coursenumberid_text.get(), self.course_name_text.get(),
-                  self.course_date_text.get(), self.course_time_text.get())
+        courseDB.update(self.selected_item[0], self.employeeid_text.get(), self.studentid_text.get(), self.genreid_text.get(),
+                        self.coursepriceid_text.get(), self.coursenumberid_text.get(), self.course_name_text.get(),
+                        self.course_date_text.get(), self.course_time_text.get())
         
         self.clear_text()
         self.populate_list()
@@ -684,7 +717,7 @@ class Course(tk.Frame):
         self.courses_list.delete(0, tk.END)
 
         # Iterate through the data returned by the fetch method in Database Class
-        for row in db.fetch():
+        for row in courseDB.fetch():
             line = [row.courseid, row.employeeid, row.studentid, row.genreid, row.coursepriceid, row.coursenumberid, row.course_name,
                     row.course_date, row.course_time]
             self.courses_list.insert(tk.END, line)
@@ -724,7 +757,7 @@ class MembershipStatus(tk.Frame):
         tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
 
         # Parent Dashboard Button
-        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=1, sticky=tk.W)
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(MembershipDashboard)).grid(row=11, column=1, sticky=tk.W)
 
         # Logout Button
         tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
@@ -778,7 +811,7 @@ class MembershipType(tk.Frame):
         tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
 
         # Parent Dashboard Button
-        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=1, sticky=tk.W)
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(MembershipDashboard)).grid(row=11, column=1, sticky=tk.W)
 
         # Logout Button
         tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
