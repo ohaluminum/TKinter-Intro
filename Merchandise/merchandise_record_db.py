@@ -16,19 +16,20 @@ class MerchandiseRecordDB:
 
     def fetch(self):
         self.cursor.execute("SELECT Vendor.first_name AS 'Vendor First Name', \
-                            Vendor.last_name AS 'Vendor Last Name', \
-                            Merchandise.merchandise_name AS 'Merchandise Name', \
-                            MerchandiseType.merchandise_type AS 'Merchandise Type', \
-                            MerchandiseNumber.merchandise_number AS 'Merchandise Number', \
-                            MerchandiseStatus.merchandise_status AS 'Merchandise Condition', \
-                            Merchandise.merchandise_price AS 'Merchandise Price' \
-                            FROM Merchandise \
-                            INNER JOIN Vendor ON Merchandise.vendorid = Vendor.vendorid \
-                            INNER JOIN MerchandiseType ON Merchandise.merchandisetypeid = MerchandiseType.merchandisetypeid \
-                            INNER JOIN MerchandiseNumber ON Merchandise.merchandisenumberid = MerchandiseNumber.merchandisenumberid \
-                            INNER JOIN MerchandiseStatus ON Merchandise.merchandisestatusid = MerchandiseStatus.merchandisestatusid \
-                            ORDER BY Vendor.first_name"
-                            )
+                                Vendor.last_name AS 'Vendor Last Name', \
+                                Merchandise.merchandise_name AS 'Merchandise Name', \
+                                MerchandiseType.merchandise_type AS 'Merchandise Type', \
+                                MerchandiseNumber.merchandise_number AS 'Merchandise Number', \
+                                MerchandiseStatus.merchandise_status AS 'Merchandise Condition', \
+                                Merchandise.merchandise_price AS 'Merchandise Price' \
+                                FROM Merchandise \
+                                WHERE IsDelete = 0 \
+                                INNER JOIN Vendor ON Merchandise.vendorid = Vendor.vendorid \
+                                INNER JOIN MerchandiseType ON Merchandise.merchandisetypeid = MerchandiseType.merchandisetypeid \
+                                INNER JOIN MerchandiseNumber ON Merchandise.merchandisenumberid = MerchandiseNumber.merchandisenumberid \
+                                INNER JOIN MerchandiseStatus ON Merchandise.merchandisestatusid = MerchandiseStatus.merchandisestatusid \
+                                ORDER BY Vendor.first_name")
+                                
         rows = self.cursor.fetchall()
         return rows
 

@@ -15,7 +15,7 @@ class MerchandiseDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT * FROM Merchandise")
+        self.cursor.execute("SELECT merchandiseid, vendorid, merchandisetypeid, merchandisenumberid, merchandisestatusid, merchandise_name, merchandise_price FROM Merchandise WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
 
@@ -28,7 +28,7 @@ class MerchandiseDB:
         
 
     def remove(self, merchandiseid):
-        self.cursor.execute("DELETE FROM Merchandise WHERE merchandiseid=?", (merchandiseid,))
+        self.cursor.execute("UPDATE Merchandise SET IsDelete = 1 WHERE merchandiseid=?", (merchandiseid,))
         self.conn.commit()
 
 

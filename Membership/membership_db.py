@@ -15,7 +15,7 @@ class MembershipDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT * FROM Membership")
+        self.cursor.execute("SELECT membershipid, studentid, membershipstatusid, membershipnumberid, membershiptypeid, membership_fee, membership_start_date, membership_end_date FROM Membership WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
     
@@ -28,7 +28,7 @@ class MembershipDB:
 
 
     def remove(self, membershipid):
-        self.cursor.execute("DELETE FROM Membership WHERE membershipid=?", (membershipid,))
+        self.cursor.execute("UPDATE Membership SET IsDelete = 1 WHERE membershipid=?", (membershipid,))
         self.conn.commit()
 
 

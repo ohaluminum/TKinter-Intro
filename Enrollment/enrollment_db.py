@@ -15,7 +15,7 @@ class EnrollmentDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT * FROM Enrollment")
+        self.cursor.execute("SELECT enrollmentid, studentid, enrollmentstatusid, enrollmentnumberid, enrollmentperiodid, enrollment_date FROM Enrollment WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
     
@@ -27,7 +27,7 @@ class EnrollmentDB:
 
 
     def remove(self, enrollmentid):
-        self.cursor.execute("DELETE FROM Enrollment WHERE enrollmentid=?", (enrollmentid,))
+        self.cursor.execute("UPDATE Enrollment SET IsDelete = 1 WHERE enrollmentid=?", (enrollmentid,))
         self.conn.commit()
 
 

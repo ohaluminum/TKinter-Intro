@@ -16,16 +16,17 @@ class MembershipRecordDB:
 
     def fetch(self):
         self.cursor.execute("SELECT Student.first_name, Student.last_name, \
-                            MembershipStatus.membership_status, MembershipNumber.membership_number, \
-                            MembershipType.membership_type, Membership.membership_fee, \
-                            Membership.membership_start_date, Membership.membership_end_date \
-                            FROM Membership \
-                            INNER JOIN Student ON Membership.studentid = Student.studentid \
-                            INNER JOIN MembershipStatus ON Membership.membershipstatusid = MembershipStatus.membershipstatusid \
-                            INNER JOIN MembershipNumber ON Membership.membershipnumberid = MembershipNumber.membershipnumberid \
-                            INNER JOIN MembershipType ON Membership.membershiptypeid = MembershipType.membershiptypeid \
-                            ORDER BY Student.first_name"
-                            )
+                                MembershipStatus.membership_status, MembershipNumber.membership_number, \
+                                MembershipType.membership_type, Membership.membership_fee, \
+                                Membership.membership_start_date, Membership.membership_end_date \
+                                FROM Membership \
+                                INNER JOIN Student ON Membership.studentid = Student.studentid \
+                                INNER JOIN MembershipStatus ON Membership.membershipstatusid = MembershipStatus.membershipstatusid \
+                                INNER JOIN MembershipNumber ON Membership.membershipnumberid = MembershipNumber.membershipnumberid \
+                                INNER JOIN MembershipType ON Membership.membershiptypeid = MembershipType.membershiptypeid \
+                                ORDER BY Student.first_name \
+                                WHERE IsDelete = 0")
+                                
         rows = self.cursor.fetchall()
         return rows
 
