@@ -15,25 +15,25 @@ class OwnerDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT * FROM Admin WHERE IsDelete = 0")
+        self.cursor.execute("SELECT * FROM Owner WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
 
 
-    def insert(self, admininfoid, adminloginid, adminstatusid, addressid):
-        self.cursor.execute("INSERT INTO Admin (admininfoid, adminloginid, adminstatusid, addressid) VALUES (?, ?, ?, ?)",
-                            (admininfoid, adminloginid, adminstatusid, addressid))
+    def insert(self, addressid, ownerstatusid, first_name, last_name, phone, email):
+        self.cursor.execute("INSERT INTO Owner (addressid, ownerstatusid, first_name, last_name, phone, email) VALUES (?, ?, ?, ?, ?, ?)",
+                            (addressid, ownerstatusid, first_name, last_name, phone, email))
         self.conn.commit()
 
 
-    def remove(self, adminid):
-        self.cursor.execute("UPDATE Admin SET IsDelete = 1 WHERE adminid=?", (adminid,))
+    def remove(self, ownerid):
+        self.cursor.execute("UPDATE Owner SET IsDelete = 1 WHERE ownerid=?", (ownerid,))
         self.conn.commit()
 
 
-    def update(self, adminid, admininfoid, adminloginid, adminstatusid, addressid):
-        self.cursor.execute("UPDATE Admin SET admininfoid = ?, adminloginid = ?, adminstatusid = ?, addressid= ? WHERE adminid = ?",
-                            (admininfoid, adminloginid, adminstatusid, addressid, adminid))
+    def update(self, ownerid, addressid, ownerstatusid, first_name, last_name, phone, email):
+        self.cursor.execute("UPDATE Owner SET addressid = ?, ownerstatusid = ?, first_name = ?, last_name = ?, phone = ?, email = ? WHERE ownerid = ?",
+                            (addressid, ownerstatusid, first_name, last_name, phone, email, ownerid))
         self.conn.commit()
 
 

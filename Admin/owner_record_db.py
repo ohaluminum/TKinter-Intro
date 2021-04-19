@@ -15,30 +15,7 @@ class OwnerRecordDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT AdminInfo.first_name AS 'Admin First Name', \
-                                AdminInfo.last_name AS 'Admin Last Name', \
-                                AdminStatus.admin_status AS 'Admin Status', \
-                                CountryName.country_name AS 'Country', \
-                                StateName.state_name AS 'State', \
-                                CityName.city_name AS 'City' \
-                                From Admin \
-                                INNER JOIN AdminInfo ON Admin.admininfoid = AdminInfo.admininfoid \
-                                INNER JOIN AdminStatus ON Admin.adminstatusid = AdminStatus.adminstatusid \
-                                INNER JOIN Address ON Admin.addressid = Address.addressid \
-                                INNER JOIN CountryName ON Address.countryid = CountryName.countryid \
-                                INNER JOIN StateName ON Address.stateid = StateName.stateid \
-                                INNER JOIN CityName ON Address.cityid = CityName.cityid") #\
-                                # WHERE Admin.IsDelete = 0")
-                                
-        rows = self.cursor.fetchall()
-        return rows
-
-
-    def __del__(self):
-        self.conn.close()
-
-
-        ownerrecords_query = "SELECT Owner.first_name AS 'Owner First Name', \
+        self.cursor.execute("SELECT Owner.first_name AS 'Owner First Name', \
                                 Owner.last_name AS 'Owner Last Name', \
                                 Owner.phone AS 'Phone Number', \
                                 Owner.email AS 'Email', \
@@ -55,4 +32,12 @@ class OwnerRecordDB:
                                 INNER JOIN CityName ON Address.cityid = CityName.cityid \
                                 INNER JOIN ZipcodeNumber ON Address.zipcodeid = ZipcodeNumber.zipcodeid \
                                 ORDER BY \
-                                Owner.first_name;"
+                                Owner.first_name") #\
+                                # WHERE Owner.IsDelete = 0")
+                                
+        rows = self.cursor.fetchall()
+        return rows
+
+
+    def __del__(self):
+        self.conn.close()
