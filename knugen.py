@@ -12,6 +12,12 @@ from Merchandise.merchandise_db import MerchandiseDB
 from Merchandise.merchandise_record_db import MerchandiseRecordDB
 from Equipment.equipment_db import EquipmentDB
 from Equipment.equipment_record_db import EquipmentRecordDB
+from Event.event_db import EventDB
+from Event.event_status_db import EventStatusDB
+from Event.event_record_db import EventRecordDB
+from Event.dance_team_db import DanceTeamDB
+from Event.reservation_db import ReservationDB
+from Event.reservation_record_db import ReservationRecordDB
 from Bill.bill_db import BillDB
 from Bill.bill_record_db import BillRecordDB
 from Admin.admin_db import AdminDB
@@ -37,6 +43,12 @@ merchandiseDB = MerchandiseDB()
 merchandiseRecordDB = MerchandiseRecordDB()
 equipmentDB = EquipmentDB()
 equipmentRecordDB = EquipmentRecordDB()
+eventDB = EventDB()
+eventStatusDB = EventStatusDB()
+eventRecordDB = EventRecordDB()
+danceTeamDB = DanceTeamDB()
+reservationDB = ReservationDB()
+reservationRecordDB = ReservationRecordDB()
 billDB = BillDB()
 billRecordDB = BillRecordDB()
 adminDB = AdminDB()
@@ -47,8 +59,6 @@ ownerDB = OwnerDB()
 ownerRecordDB = OwnerRecordDB()
 vendorDB = VendorDB()
 vendorRecordDB = VendorRecordDB()
-
-
 
 
 # Application Class
@@ -72,7 +82,7 @@ class App(tk.Tk):
 
         for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard, 
                             Course, StudentCourseStatus, MerchandiseRecord, Merchandise, EquipmentRecord, Equipment, MembershipRecord, Membership, EnrollmentRecord, Enrollment,
-                            BillRecord, Bill, AdminRecord, Admin, AdminInfo, AdminLogin, OwnerRecord, Owner, VendorRecord, Vendor):
+                            EventRecord, Event, EventStatus, DanceTeam, ReservationRecord, Reservation, BillRecord, Bill, AdminRecord, Admin, AdminInfo, AdminLogin, OwnerRecord, Owner, VendorRecord, Vendor):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -465,11 +475,11 @@ class EventDashboard(tk.Frame):
         tk.Label(self, text="").grid(row=1, column=0)    # Equivalent to empty line
         tk.Label(self, text="").grid(row=2, column=0)    # Equivalent to empty line
         tk.Label(self, text="                                                     ").grid(row=3, column=0)
-        tk.Button(self, text="Event Records", height="8", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=3, column=1)
+        tk.Button(self, text="Event Records", height="8", width="20", command=lambda: controller.show_frame(EventRecord)).grid(row=3, column=1)
 
         # 2. Reservation Records
         tk.Label(self, text="                                                                   ").grid(row=3, column=2, columnspan=5)    
-        tk.Button(self, text="Reservation Records", height="8", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=3, column=7)
+        tk.Button(self, text="Reservation Records", height="8", width="20", command=lambda: controller.show_frame(ReservationRecord)).grid(row=3, column=7)
         tk.Label(self, text="                                                     ").grid(row=3, column=8)    
 
         # 4. Home Dashboard Button
@@ -1914,6 +1924,773 @@ class Enrollment(tk.Frame):
             self.enrollment_list.insert(tk.END, line)
 
 
+# ------------------------------------------- EVENT -----------------------------------------------------
+
+# Event Record Window
+class EventRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create event record page element
+        self.header = tk.Label(self, text="Event Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Event Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.event_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.event_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EventDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit Event", height="1", width="15", command=lambda: controller.show_frame(Event)).grid(row=11, column=2, sticky=tk.W)
+        tk.Button(self, text="Edit Event Status", height="1", width="15", command=lambda: controller.show_frame(EventStatus)).grid(row=11, column=3, sticky=tk.W)
+        tk.Button(self, text="Edit Dance Team", height="1", width="15", command=lambda: controller.show_frame(DanceTeam)).grid(row=11, column=4, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.event_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.event_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.event_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in eventRecordDB.fetch():
+            self.event_list.insert(tk.END, row)
+
+
+# Event Window
+class Event(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create event page element
+        self.header = tk.Label(self, text="Event Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Event Status ID
+        self.eventstatusid_text = tk.StringVar()
+        self.eventstatusid_label = tk.Label(self, text='Event Status ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.eventstatusid_entry = tk.Entry(self, textvariable=self.eventstatusid_text)
+        self.eventstatusid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Dance Team ID
+        self.danceteamid_text = tk.StringVar()
+        self.danceteamid_label = tk.Label(self, text='Dance Team ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.danceteamid_entry = tk.Entry(self, textvariable=self.danceteamid_text)
+        self.danceteamid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Event Number ID
+        self.eventnumberid_text = tk.StringVar()
+        self.eventnumberid_label = tk.Label(self, text='Event Number ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.eventnumberid_entry = tk.Entry(self, textvariable=self.eventnumberid_text)
+        self.eventnumberid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Event Period ID
+        self.eventperiodid_text = tk.StringVar()
+        self.eventperiodid_label = tk.Label(self, text='Event Period ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.eventperiodid_entry = tk.Entry(self, textvariable=self.eventperiodid_text)
+        self.eventperiodid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Event Name
+        self.event_name_text = tk.StringVar()
+        self.event_name_label = tk.Label(self, text='Event Name: ', font=("Segoe UI", 11)).grid(row=3, column=3, sticky=tk.W)
+        self.event_name_entry = tk.Entry(self, textvariable=self.event_name_text)
+        self.event_name_entry.grid(row=3, column=4)
+        tk.Label(self, text="          ").grid(row=3, column=5)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Event List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.event_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.event_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EventRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.event_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.event_list.yview)
+
+        # Bind select
+        self.event_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.event_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.event_list.get(index)
+
+            # Display data at entry box
+            self.eventstatusid_entry.delete(0, tk.END)
+            self.eventstatusid_entry.insert(tk.END, self.selected_item[1])
+            self.danceteamid_entry.delete(0, tk.END)
+            self.danceteamid_entry.insert(tk.END, self.selected_item[2])
+            self.eventnumberid_entry.delete(0, tk.END)
+            self.eventnumberid_entry.insert(tk.END, self.selected_item[3])
+            self.eventperiodid_entry.delete(0, tk.END)
+            self.eventperiodid_entry.insert(tk.END, self.selected_item[4])
+            self.event_name_entry.delete(0, tk.END)
+            self.event_name_entry.insert(tk.END, self.selected_item[5])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.eventstatusid_text.get() == '' or self.danceteamid_text.get() == '' or self.eventnumberid_text.get() == '' \
+                                                or self.eventperiodid_text.get() == '' or self.event_name_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        eventDB.insert(self.eventstatusid_text.get(), self.danceteamid_text.get(), self.eventnumberid_text.get(),
+                    self.eventperiodid_text.get(), self.event_name_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        eventDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        eventDB.update(self.selected_item[0], self.eventstatusid_text.get(), self.danceteamid_text.get(), self.eventnumberid_text.get(),
+                    self.eventperiodid_text.get(), self.event_name_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+       
+        
+    # Clear entry box
+    def clear_text(self):
+        self.eventstatusid_entry.delete(0, tk.END)
+        self.danceteamid_entry.delete(0, tk.END)
+        self.eventnumberid_entry.delete(0, tk.END)
+        self.eventperiodid_entry.delete(0, tk.END)
+        self.event_name_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.event_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in eventDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4], row[5]]
+            self.event_list.insert(tk.END, line)
+
+
+# Event Status Window
+class EventStatus(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create event status page element
+        self.header = tk.Label(self, text="Event Status Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Event Status
+        self.event_status_text = tk.StringVar()
+        self.event_status_label = tk.Label(self, text='Event Status: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.event_status_entry = tk.Entry(self, textvariable=self.event_status_text)
+        self.event_status_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Event Start Date
+        self.event_start_date_text = tk.StringVar()
+        self.event_start_date_label = tk.Label(self, text='Event Start Date: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.event_start_date_entry = tk.Entry(self, textvariable=self.event_start_date_text)
+        self.event_start_date_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Event End Date
+        self.event_end_date_text = tk.StringVar()
+        self.event_end_date_label = tk.Label(self, text='Event End Date: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.event_end_date_entry = tk.Entry(self, textvariable=self.event_end_date_text)
+        self.event_end_date_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Event List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.event_status_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.event_status_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EventRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.event_status_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.event_status_list.yview)
+
+        # Bind select
+        self.event_status_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.event_status_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.event_status_list.get(index)
+
+            # Display data at entry box
+            self.event_status_entry.delete(0, tk.END)
+            self.event_status_entry.insert(tk.END, self.selected_item[1])
+            self.event_start_date_entry.delete(0, tk.END)
+            self.event_start_date_entry.insert(tk.END, self.selected_item[2])
+            self.event_end_date_entry.delete(0, tk.END)
+            self.event_end_date_entry.insert(tk.END, self.selected_item[3])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.event_status_text.get() == '' or self.event_start_date_text.get() == '' or self.event_end_date_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        eventStatusDB.insert(self.event_status_text.get(), self.event_start_date_text.get(), self.event_end_date_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        eventStatusDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        eventStatusDB.update(self.selected_item[0], self.event_status_text.get(), self.event_start_date_text.get(), self.event_end_date_text.get())
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+       
+        
+    # Clear entry box
+    def clear_text(self):
+        self.event_status_entry.delete(0, tk.END)
+        self.event_start_date_entry.delete(0, tk.END)
+        self.event_end_date_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.event_status_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in eventStatusDB.fetch():
+            line = [row[0], row[1], row[2], row[3]]
+            self.event_status_list.insert(tk.END, line)
+
+
+# Dance Team Window
+class DanceTeam(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create dance team page element
+        self.header = tk.Label(self, text="Dance Team Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Dance Team Name
+        self.dance_team_text = tk.StringVar()
+        self.dance_team_label = tk.Label(self, text='Dance Team: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.dance_team_entry = tk.Entry(self, textvariable=self.dance_team_text)
+        self.dance_team_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        tk.Label(self, text="                             ").grid(row=2, column=3)
+        tk.Label(self, text="                                        ").grid(row=2, column=4)
+        tk.Label(self, text="                                                                                       ").grid(row=2, column=5, columnspan=4)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Dance Team List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.dance_team_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.dance_team_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EventRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.dance_team_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.dance_team_list.yview)
+
+        # Bind select
+        self.dance_team_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.dance_team_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.dance_team_list.get(index)
+
+            # Display data at entry box
+            self.dance_team_entry.delete(0, tk.END)
+            self.dance_team_entry.insert(tk.END, self.selected_item[1])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.dance_team_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        danceTeamDB.insert(self.dance_team_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        danceTeamDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        danceTeamDB.update(self.selected_item[0], self.dance_team_text.get())
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+       
+        
+    # Clear entry box
+    def clear_text(self):
+        self.dance_team_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.dance_team_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in danceTeamDB.fetch():
+            line = [row[0], row[1]]
+            self.dance_team_list.insert(tk.END, line)
+
+
+# Reservation Record Window
+class ReservationRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create reservation record page element
+        self.header = tk.Label(self, text="Reservation Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Reservation Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.reservation_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.reservation_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EventDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit Reservation", height="1", width="15", command=lambda: controller.show_frame(Reservation)).grid(row=11, column=2, sticky=tk.W)
+        tk.Button(self, text="Edit Dance Team", height="1", width="15", command=lambda: controller.show_frame(DanceTeam)).grid(row=11, column=3, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.reservation_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.reservation_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.reservation_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in reservationRecordDB.fetch():
+            self.reservation_list.insert(tk.END, row)
+
+
+# Reservation Window
+class Reservation(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create reservation page element
+        self.header = tk.Label(self, text="Reservation Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Student ID
+        self.studentid_text = tk.StringVar()
+        self.studentid_label = tk.Label(self, text='Student ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.studentid_entry = tk.Entry(self, textvariable=self.studentid_text)
+        self.studentid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Event ID
+        self.eventid_text = tk.StringVar()
+        self.eventid_label = tk.Label(self, text='Event ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.eventid_entry = tk.Entry(self, textvariable=self.eventid_text)
+        self.eventid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Reservation Number ID
+        self.reservationnumberid_text = tk.StringVar()
+        self.reservationnumberid_label = tk.Label(self, text='Reservation Number ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.reservationnumberid_entry = tk.Entry(self, textvariable=self.reservationnumberid_text)
+        self.reservationnumberid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Dance Team ID
+        self.danceteamid_text = tk.StringVar()
+        self.danceteamid_label = tk.Label(self, text='Dance Team ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.danceteamid_entry = tk.Entry(self, textvariable=self.danceteamid_text)
+        self.danceteamid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Description
+        self.reservation_description_text = tk.StringVar()
+        self.reservation_description_label = tk.Label(self, text='Description: ', font=("Segoe UI", 11)).grid(row=3, column=3, sticky=tk.W)
+        self.reservation_description_entry = tk.Entry(self, textvariable=self.reservation_description_text)
+        self.reservation_description_entry.grid(row=3, column=4)
+        tk.Label(self, text="          ").grid(row=3, column=5)
+
+        # Reservation Date
+        self.reservation_date_text = tk.StringVar()
+        self.reservation_date_label = tk.Label(self, text='Reservation Date: ', font=("Segoe UI", 11)).grid(row=3, column=6, sticky=tk.W)
+        self.reservation_date_entry = tk.Entry(self, textvariable=self.reservation_date_text)
+        self.reservation_date_entry.grid(row=3, column=7)
+        tk.Label(self, text="          ").grid(row=3, column=8)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Reservation List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.reservation_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.reservation_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(ReservationRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.reservation_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.reservation_list.yview)
+
+        # Bind select
+        self.reservation_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.reservation_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.reservation_list.get(index)
+
+            # Display data at entry box
+            self.studentid_entry.delete(0, tk.END)
+            self.studentid_entry.insert(tk.END, self.selected_item[1])
+            self.eventid_entry.delete(0, tk.END)
+            self.eventid_entry.insert(tk.END, self.selected_item[2])
+            self.reservationnumberid_entry.delete(0, tk.END)
+            self.reservationnumberid_entry.insert(tk.END, self.selected_item[3])
+            self.danceteamid_entry.delete(0, tk.END)
+            self.danceteamid_entry.insert(tk.END, self.selected_item[4])
+            self.reservation_description_entry.delete(0, tk.END)
+            self.reservation_description_entry.insert(tk.END, self.selected_item[5])
+            self.reservation_date_entry.delete(0, tk.END)
+            self.reservation_date_entry.insert(tk.END, self.selected_item[6])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.studentid_text.get() == '' or self.eventid_text.get() == '' or self.reservationnumberid_text.get() == '' \
+                                            or self.danceteamid_text.get() == '' or self.reservation_description_text.get() == '' \
+                                            or self.reservation_date_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        reservationDB.insert(self.studentid_text.get(), self.eventid_text.get(), self.reservationnumberid_text.get(), self.danceteamid_text.get(),
+                            self.reservation_description_text.get(), self.reservation_date_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        reservationDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        reservationDB.update(self.selected_item[0], self.studentid_text.get(), self.eventid_text.get(), self.reservationnumberid_text.get(), self.danceteamid_text.get(),
+                            self.reservation_description_text.get(), self.reservation_date_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+       
+        
+    # Clear entry box
+    def clear_text(self):
+        self.studentid_entry.delete(0, tk.END)
+        self.eventid_entry.delete(0, tk.END)
+        self.reservationnumberid_entry.delete(0, tk.END)
+        self.danceteamid_entry.delete(0, tk.END)
+        self.reservation_description_entry.delete(0, tk.END)
+        self.reservation_date_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.reservation_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in reservationDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4], row[5], row[6]]
+            self.reservation_list.insert(tk.END, line)
+
+
 # ------------------------------------------- BILL ------------------------------------------------------
 
 # Bill Record Window
@@ -2045,7 +2822,7 @@ class Bill(tk.Frame):
         self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
         self.exit_btn.grid(row=6, column=4, sticky=tk.E)
 
-        # Membership List
+        # Bill List
         tk.Label(self, text="").grid(row=7, column=0)
         self.bill_list = tk.Listbox(self, height=7, width=130, border=1)
         self.bill_list.grid(row=8, column=0, columnspan=8, rowspan=2)
