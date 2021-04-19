@@ -3,6 +3,11 @@ from tkinter import messagebox
 from PIL import ImageTk, Image
 from Student.student_db import StudentDB
 from Student.student_record_db import StudentRecordDB
+from Student.student_rating_db import StudentRatingDB
+from Student.student_review_db import StudentReviewDB
+from Student.student_rating_record_db import StudentRatingRecordDB
+from Student.student_contract_db import StudentContractDB
+from Student.student_contract_record_db import StudentContractRecordDB
 from Employee.employee_login_db import EmployeeLoginDB
 from Course.course_db import CourseDB
 from Course.student_course_status_db import StudentCourseStatusDB
@@ -36,6 +41,12 @@ from Vendor.vendor_record_db import VendorRecordDB
 # Database context
 studentDB = StudentDB()
 studentRecordDB = StudentRecordDB()
+studentRatingDB = StudentRatingDB()
+studentReviewDB = StudentReviewDB()
+studentRatingRecordDB = StudentRatingRecordDB()
+studentContractDB = StudentContractDB()
+studentContractRecordDB = StudentContractRecordDB()
+
 employeeLoginDB = EmployeeLoginDB()
 courseDB = CourseDB()
 studentCourseStatusDB = StudentCourseStatusDB()
@@ -85,7 +96,7 @@ class App(tk.Tk):
         self.frames = {}
 
         for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard,
-                        StudentRecord, Student, 
+                        StudentRecord, Student, StudentRatingRecord, StudentRating, StudentReview, StudentContractRecord, StudentContract,
                         Course, StudentCourseStatus, MerchandiseRecord, Merchandise, EquipmentRecord, Equipment, MembershipRecord, Membership, EnrollmentRecord, Enrollment,
                         EventRecord, Event, EventStatus, DanceTeam, ReservationRecord, Reservation, BillRecord, Bill, AdminRecord, Admin, AdminInfo, AdminLogin, OwnerRecord, Owner, VendorRecord, Vendor):
             frame = F(container, self)
@@ -297,7 +308,7 @@ class Dashboard(tk.Frame):
         # 1. Student Button
         tk.Label(self, text="").grid(row=1, column=0)
         tk.Label(self, text="").grid(row=2, column=0)
-        tk.Button(self, text="Student", height="3", width="20", command=lambda: controller.show_frame(StudentDashboard)).grid(row=3, column=0)
+        tk.Button(self, text="Student", height="3", width="20", command=lambda: controller.show_frame(StudentDashboard)).grid(row=3, column=0)      # ✔
 
         # 2. Employee Button
         tk.Label(self, text="      ").grid(row=3, column=1)    
@@ -361,13 +372,13 @@ class StudentDashboard(tk.Frame):
         tk.Label(self, text="                    ").grid(row=3, column=1)    
         tk.Label(self, text="                    ").grid(row=3, column=2)    
         tk.Label(self, text="                    ").grid(row=3, column=3)    
-        tk.Button(self, text="Student Ratings/Reviews", height="8", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=3, column=4)
+        tk.Button(self, text="Student Ratings/Reviews", height="8", width="20", command=lambda: controller.show_frame(StudentRatingRecord)).grid(row=3, column=4)
 
         # 3. Student Contract List
         tk.Label(self, text="                    ").grid(row=3, column=5)    
         tk.Label(self, text="                    ").grid(row=3, column=6)    
         tk.Label(self, text="                    ").grid(row=3, column=7)    
-        self.courseButton = tk.Button(self, text="Student Contract List", height="8", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=3, column=8)
+        self.courseButton = tk.Button(self, text="Student Contract", height="8", width="20", command=lambda: controller.show_frame(StudentContractRecord)).grid(row=3, column=8)
 
         # 4. Home Dashboard Button
         tk.Label(self, text="").grid(row=4, column=0)  
@@ -760,7 +771,609 @@ class Student(tk.Frame):
             self.student_list.insert(tk.END, line)
 
 
+# Student Rating Record Window
+class StudentRatingRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
 
+        # Create student rating record page element
+        self.header = tk.Label(self, text="Student Rating Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Student Rating Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.student_rating_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.student_rating_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(StudentDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit Rating", height="1", width="15", command=lambda: controller.show_frame(StudentRating)).grid(row=11, column=2, sticky=tk.W)
+        tk.Button(self, text="Edit Review", height="1", width="15", command=lambda: controller.show_frame(StudentReview)).grid(row=11, column=3, sticky=tk.W)
+        tk.Button(self, text="Edit Student", height="1", width="15", command=lambda: controller.show_frame(Student)).grid(row=11, column=4, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.student_rating_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.student_rating_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.student_rating_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in studentRatingRecordDB.fetch():
+            self.student_rating_list.insert(tk.END, row)
+
+
+# Student Rating Window
+class StudentRating(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create student rating page element
+        self.header = tk.Label(self, text="Student Rating Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Student ID
+        self.studentid_text = tk.StringVar()
+        self.studentid_label = tk.Label(self, text='Student ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.studentid_entry = tk.Entry(self, textvariable=self.studentid_text)
+        self.studentid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Student Category ID
+        self.studentcategoryid_text = tk.StringVar()
+        self.studentcategoryid_label = tk.Label(self, text='Category ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.studentcategoryid_entry = tk.Entry(self, textvariable=self.studentcategoryid_text)
+        self.studentcategoryid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Course ID
+        self.courseid_text = tk.StringVar()
+        self.courseid_label = tk.Label(self, text='Course ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.courseid_entry = tk.Entry(self, textvariable=self.courseid_text)
+        self.courseid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Student Review ID
+        self.studentreviewid_text = tk.StringVar()
+        self.studentreviewid_label = tk.Label(self, text='Review ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.studentreviewid_entry = tk.Entry(self, textvariable=self.studentreviewid_text)
+        self.studentreviewid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Rating Number
+        self.rating_number_text = tk.StringVar()
+        self.rating_number_label = tk.Label(self, text='Rating Number: ', font=("Segoe UI", 11)).grid(row=3, column=3, sticky=tk.W)
+        self.rating_number_entry = tk.Entry(self, textvariable=self.rating_number_text)
+        self.rating_number_entry.grid(row=3, column=4)
+        tk.Label(self, text="          ").grid(row=3, column=5)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Student List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.student_rating_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.student_rating_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(StudentRatingRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.student_rating_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.student_rating_list.yview)
+
+        # Bind select
+        self.student_rating_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.student_rating_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.student_rating_list.get(index)
+
+            # Display data at entry box
+            self.studentid_entry.delete(0, tk.END)
+            self.studentid_entry.insert(tk.END, self.selected_item[1])
+            self.studentcategoryid_entry.delete(0, tk.END)
+            self.studentcategoryid_entry.insert(tk.END, self.selected_item[2])
+            self.courseid_entry.delete(0, tk.END)
+            self.courseid_entry.insert(tk.END, self.selected_item[3])
+            self.studentreviewid_entry.delete(0, tk.END)
+            self.studentreviewid_entry.insert(tk.END, self.selected_item[4])
+            self.rating_number_entry.delete(0, tk.END)
+            self.rating_number_entry.insert(tk.END, self.selected_item[5])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.studentid_text.get() == '' or self.studentcategoryid_text.get() == '' or self.courseid_text.get() == '' \
+                                            or self.studentreviewid_text.get() == '' or self.rating_number_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        studentRatingDB.insert(self.studentid_text.get(), self.studentcategoryid_text.get(), self.courseid_text.get(), 
+                            self.studentreviewid_text.get(), self.rating_number_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+        # Show the message
+        self.notification_label.config(text="New record has been added successfully!")
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        studentRatingDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        studentRatingDB.update(self.selected_item[0], self.studentid_text.get(), self.studentcategoryid_text.get(), self.courseid_text.get(),
+                            self.studentreviewid_text.get(), self.rating_number_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+
+
+    # Clear entry box
+    def clear_text(self):
+        self.studentid_entry.delete(0, tk.END)
+        self.studentcategoryid_entry.delete(0, tk.END)
+        self.courseid_entry.delete(0, tk.END)
+        self.studentreviewid_entry.delete(0, tk.END)
+        self.rating_number_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.student_rating_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in studentRatingDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4], row[5]]
+            self.student_rating_list.insert(tk.END, line)
+
+
+# Student Review Window
+class StudentReview(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create student review page element
+        self.header = tk.Label(self, text="Student Review Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Student Review Comment
+        self.student_review_comment_text = tk.StringVar()
+        self.student_review_comment_label = tk.Label(self, text='Review Comment: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.student_review_comment_entry = tk.Entry(self, textvariable=self.student_review_comment_text)
+        self.student_review_comment_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Student Review Date
+        self.student_review_date_text = tk.StringVar()
+        self.student_review_date_label = tk.Label(self, text='Review Date: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.student_review_date_entry = tk.Entry(self, textvariable=self.student_review_date_text)
+        self.student_review_date_entry.grid(row=2, column=4)
+        tk.Label(self, text="                                                                                                              ").grid(row=2, column=5, columnspan=4)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Riview List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.student_review_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.student_review_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(StudentRatingRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.student_review_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.student_review_list.yview)
+
+        # Bind select
+        self.student_review_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.student_review_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.student_review_list.get(index)
+
+            # Display data at entry box
+            self.student_review_comment_entry.delete(0, tk.END)
+            self.student_review_comment_entry.insert(tk.END, self.selected_item[1])
+            self.student_review_date_entry.delete(0, tk.END)
+            self.student_review_date_entry.insert(tk.END, self.selected_item[2])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.student_review_comment_text.get() == '' or self.student_review_date_text.get() == '':           
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        studentReviewDB.insert(self.student_review_comment_text.get(), self.student_review_date_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        studentReviewDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        studentReviewDB.update(self.selected_item[0], self.student_review_comment_text.get(), self.student_review_date_text.get())
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+       
+        
+    # Clear entry box
+    def clear_text(self):
+        self.student_review_comment_entry.delete(0, tk.END)
+        self.student_review_date_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.student_review_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in studentReviewDB.fetch():
+            line = [row[0], row[1], row[2]]
+            self.student_review_list.insert(tk.END, line)
+
+
+# Student Contract Record Window
+class StudentContractRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create student contract record page element
+        self.header = tk.Label(self, text="Student Contract Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Student Rating Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.student_contract_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.student_contract_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(StudentDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit Contract", height="1", width="15", command=lambda: controller.show_frame(StudentContract)).grid(row=11, column=2, sticky=tk.W)
+        tk.Button(self, text="Edit Student", height="1", width="15", command=lambda: controller.show_frame(Student)).grid(row=11, column=3, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.student_contract_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.student_contract_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.student_contract_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in studentContractRecordDB.fetch():
+            self.student_contract_list.insert(tk.END, row)
+
+
+# Student Contract Window
+class StudentContract(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create student contract page element
+        self.header = tk.Label(self, text="Student Contract Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Student ID
+        self.studentid_text = tk.StringVar()
+        self.studentid_label = tk.Label(self, text='Student ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.studentid_entry = tk.Entry(self, textvariable=self.studentid_text)
+        self.studentid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Student Category ID
+        self.studentcategoryid_text = tk.StringVar()
+        self.studentcategoryid_label = tk.Label(self, text='Category ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.studentcategoryid_entry = tk.Entry(self, textvariable=self.studentcategoryid_text)
+        self.studentcategoryid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Student Code ID
+        self.studentcodeid_text = tk.StringVar()
+        self.studentcodeid_label = tk.Label(self, text='Student Code ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.studentcodeid_entry = tk.Entry(self, textvariable=self.studentcodeid_text)
+        self.studentcodeid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Student Contract Status ID
+        self.studentcontractstatusid_text = tk.StringVar()
+        self.studentcontractstatusid_label = tk.Label(self, text='Contract Status ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.studentcontractstatusid_entry = tk.Entry(self, textvariable=self.studentcontractstatusid_text)
+        self.studentcontractstatusid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Student List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.student_contract_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.student_contract_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(StudentContractRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.student_contract_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.student_contract_list.yview)
+
+        # Bind select
+        self.student_contract_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.student_contract_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.student_contract_list.get(index)
+
+            # Display data at entry box
+            self.studentid_entry.delete(0, tk.END)
+            self.studentid_entry.insert(tk.END, self.selected_item[1])
+            self.studentcategoryid_entry.delete(0, tk.END)
+            self.studentcategoryid_entry.insert(tk.END, self.selected_item[2])
+            self.studentcodeid_entry.delete(0, tk.END)
+            self.studentcodeid_entry.insert(tk.END, self.selected_item[3])
+            self.studentcontractstatusid_entry.delete(0, tk.END)
+            self.studentcontractstatusid_entry.insert(tk.END, self.selected_item[4])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.studentid_text.get() == '' or self.studentcategoryid_text.get() == '' or self.studentcodeid_text.get() == '' \
+                                            or self.studentcontractstatusid_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        studentContractDB.insert(self.studentid_text.get(), self.studentcategoryid_text.get(), self.studentcodeid_text.get(),
+                                self.studentcontractstatusid_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+        # Show the message
+        self.notification_label.config(text="New record has been added successfully!")
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        studentContractDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        studentContractDB.update(self.selected_item[0], self.studentid_text.get(), self.studentcategoryid_text.get(), self.studentcodeid_text.get(),
+                                self.studentcontractstatusid_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+
+
+    # Clear entry box
+    def clear_text(self):
+        self.studentid_entry.delete(0, tk.END)
+        self.studentcategoryid_entry.delete(0, tk.END)
+        self.studentcodeid_entry.delete(0, tk.END)
+        self.studentcontractstatusid_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.student_contract_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in studentContractDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4]]
+            self.student_contract_list.insert(tk.END, line)
 
 
 # ------------------------------------------- COURSE ------------------------------------------------ 
