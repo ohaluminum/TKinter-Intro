@@ -15,7 +15,7 @@ class MembershipDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT membershipid, studentid, membershipstatusid, membershipnumberid, membershiptypeid, membership_fee, membership_start_date, membership_end_date FROM Membership WHERE IsDelete = 0")
+        self.cursor.execute("SELECT * FROM Membership WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
     

@@ -15,7 +15,7 @@ class EquipmentDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT equipmentid, vendorid, equipmenttypeid, equipmentnumberid, equipmentstatusid, equipment_name, equipment_price FROM Equipment WHERE IsDelete = 0")
+        self.cursor.execute("SELECT * FROM Equipment WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
     

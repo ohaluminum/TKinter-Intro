@@ -23,8 +23,8 @@ class EnrollmentRecordDB:
                                 INNER JOIN EnrollmentStatus ON Enrollment.enrollmentstatusid = EnrollmentStatus.enrollmentstatusid \
                                 INNER JOIN EnrollmentNumber ON Enrollment.enrollmentnumberid = EnrollmentNumber.enrollmentnumberid \
                                 INNER JOIN EnrollmentPeriod ON Enrollment.enrollmentperiodid = EnrollmentPeriod.enrollmentperiodid \
-                                ORDER BY Student.first_name \
-                                WHERE IsDelete = 0")
+                                ORDER BY Student.first_name") #\
+                                # WHERE Enrollment.IsDelete = 0")
                                 
         rows = self.cursor.fetchall()
         return rows

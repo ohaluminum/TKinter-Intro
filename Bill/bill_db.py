@@ -15,7 +15,7 @@ class BillDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT billid, studentid, coursepriceid, membershipid, billnumberid, bill_date, total_bill FROM Bill WHERE IsDelete = 0")
+        self.cursor.execute("SELECT * FROM Bill WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
     

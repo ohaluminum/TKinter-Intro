@@ -15,7 +15,7 @@ class MerchandiseDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT merchandiseid, vendorid, merchandisetypeid, merchandisenumberid, merchandisestatusid, merchandise_name, merchandise_price FROM Merchandise WHERE IsDelete = 0")
+        self.cursor.execute("SELECT * FROM Merchandise WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
 

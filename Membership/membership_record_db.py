@@ -24,8 +24,8 @@ class MembershipRecordDB:
                                 INNER JOIN MembershipStatus ON Membership.membershipstatusid = MembershipStatus.membershipstatusid \
                                 INNER JOIN MembershipNumber ON Membership.membershipnumberid = MembershipNumber.membershipnumberid \
                                 INNER JOIN MembershipType ON Membership.membershiptypeid = MembershipType.membershiptypeid \
-                                ORDER BY Student.first_name \
-                                WHERE IsDelete = 0")
+                                ORDER BY Student.first_name") #\
+                                #WHERE Membership.IsDelete = 0")
                                 
         rows = self.cursor.fetchall()
         return rows

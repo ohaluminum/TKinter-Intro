@@ -15,7 +15,7 @@ class EnrollmentDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT enrollmentid, studentid, enrollmentstatusid, enrollmentnumberid, enrollmentperiodid, enrollment_date FROM Enrollment WHERE IsDelete = 0")
+        self.cursor.execute("SELECT * FROM Enrollment WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
     

@@ -15,7 +15,7 @@ class VendorDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT vendorid, addressid, vendorstatusid, first_name, last_name, phone, email FROM Vendor WHERE IsDelete = 0")
+        self.cursor.execute("SELECT * FROM Vendor WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
     

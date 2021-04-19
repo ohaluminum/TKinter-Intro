@@ -26,8 +26,8 @@ class EquipmentRecordDB:
                                 INNER JOIN EquipmentType ON Equipment.equipmenttypeid = EquipmentType.equipmenttypeid \
                                 INNER JOIN EquipmentNumber ON Equipment.equipmentnumberid = EquipmentNumber.equipmentnumberid \
                                 INNER JOIN EquipmentStatus ON Equipment.equipmentstatusid = EquipmentStatus.equipmentstatusid \
-                                ORDER BY Vendor.first_name \
-                                WHERE IsDelete = 0")
+                                ORDER BY Vendor.first_name") #\
+                                #WHERE Equipment.IsDelete = 0")
 
         rows = self.cursor.fetchall()
         return rows

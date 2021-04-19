@@ -15,7 +15,7 @@ class CourseDB:
 
 
     def fetch(self):
-        self.cursor.execute("SELECT * FROM Course")
+        self.cursor.execute("SELECT * FROM Course WHERE IsDelete = 0")
         rows = self.cursor.fetchall()
         return rows
 
@@ -28,7 +28,7 @@ class CourseDB:
 
 
     def remove(self, courseid):
-        self.cursor.execute("DELETE FROM Course WHERE courseid=?", (courseid,))
+        self.cursor.execute("UPDATE Course SET IsDelete = 1 WHERE courseid = ?", (courseid,))
         self.conn.commit()
 
 

@@ -17,10 +17,27 @@ class AdminLoginDB:
         except:
             print("Failed to connect to database.")
 
+        
+    def fetch(self):
+        self.cursor.execute("SELECT * FROM AdminLogin WHERE IsDelete = 0")
+        rows = self.cursor.fetchall()
+        return rows
+
 
     def insert(self, inputData):
         self.cursor.execute("INSERT INTO AdminLogin (adminusername, adminpassword) VALUES (?, ?)",
                             (inputData[0], inputData[1]))
+        self.conn.commit()
+
+    
+    def remove(self, adminloginid):
+        self.cursor.execute("UPDATE AdminLogin SET IsDelete = 1 WHERE adminloginid=?", (adminloginid,))
+        self.conn.commit()
+
+
+    def update(self, adminloginid, adminusername, adminpassword):
+        self.cursor.execute("UPDATE AdminLogin SET adminusername = ?, adminpassword = ? WHERE adminloginid = ?",
+                            (adminusername, adminpassword, adminloginid))
         self.conn.commit()
 
 
@@ -55,3 +72,16 @@ class AdminLoginDB:
 
     def __del__(self):
         self.conn.close()
+
+
+
+
+
+
+
+
+
+
+
+
+

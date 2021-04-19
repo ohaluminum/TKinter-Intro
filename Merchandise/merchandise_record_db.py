@@ -23,12 +23,12 @@ class MerchandiseRecordDB:
                                 MerchandiseStatus.merchandise_status AS 'Merchandise Condition', \
                                 Merchandise.merchandise_price AS 'Merchandise Price' \
                                 FROM Merchandise \
-                                WHERE IsDelete = 0 \
                                 INNER JOIN Vendor ON Merchandise.vendorid = Vendor.vendorid \
                                 INNER JOIN MerchandiseType ON Merchandise.merchandisetypeid = MerchandiseType.merchandisetypeid \
                                 INNER JOIN MerchandiseNumber ON Merchandise.merchandisenumberid = MerchandiseNumber.merchandisenumberid \
                                 INNER JOIN MerchandiseStatus ON Merchandise.merchandisestatusid = MerchandiseStatus.merchandisestatusid \
-                                ORDER BY Vendor.first_name")
+                                ORDER BY Vendor.first_name") #\
+                                #WHERE Merchandise.IsDelete = 0")
                                 
         rows = self.cursor.fetchall()
         return rows
