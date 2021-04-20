@@ -27,8 +27,8 @@ class BillRecordDB:
                                 INNER JOIN Membership ON Bill.membershipid = Membership.membershipid \
                                 INNER JOIN CoursePrice ON Bill.coursepriceid = CoursePrice.coursepriceid \
                                 INNER JOIN BillNumber ON Bill.billnumberid = BillNumber.billnumberid \
-                                ORDER BY Student.first_name") #\
-                                # WHERE Bill.IsDelete = 0")
+                                WHERE Bill.IsDelete = 0 \
+                                ORDER BY Student.first_name")
                                 
         rows = self.cursor.fetchall()
         return rows

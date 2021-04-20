@@ -31,8 +31,8 @@ class EmployeeRecordDB:
                             INNER JOIN CityName ON Address.cityid = CityName.cityid \
                             INNER JOIN StateName ON Address.stateid = StateName.stateid \
                             INNER JOIN CountryName ON Address.countryid = CountryName.countryid \
-                            ORDER BY Address.addressid") #\
-                            #WHERE Employee.IsDelete = 0")
+                            WHERE Employee.IsDelete = 0 \
+                            ORDER BY Address.addressid")
                                 
         rows = self.cursor.fetchall()
         return rows

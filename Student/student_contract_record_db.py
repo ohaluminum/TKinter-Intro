@@ -26,8 +26,8 @@ class StudentContractRecordDB:
                             INNER JOIN StudentCategory ON StudentContract.studentcategoryid = StudentCategory.studentcategoryid \
                             INNER JOIN StudentCode ON StudentContract.studentcodeid = StudentCode.studentcodeid \
                             INNER JOIN StudentContractStatus ON StudentContract.studentcontractstatusid = StudentContractStatus.studentcontractstatusid \
-                            ORDER BY Student.last_name") #\
-                            #WHERE StudentContract.IsDelete = 0")
+                            WHERE StudentContract.IsDelete = 0 \
+                            ORDER BY Student.last_name")
                                 
         rows = self.cursor.fetchall()
         return rows

@@ -27,8 +27,8 @@ class EmployeeLicenseRecordDB:
                             INNER JOIN EmployeeStatus ON EmployeeLicense.employeestatusid = EmployeeStatus.employeestatusid \
                             INNER JOIN EmployeeType ON EmployeeLicense.employeetypeid = EmployeeType.employeetypeid \
                             INNER JOIN EmployeeLicenseNumber ON EmployeeLicense.employeelicensenumberid = EmployeeLicenseNumber.employeelicensenumberid \
+                            WHERE EmployeeLicense.IsDelete = 0 \
                             ORDER BY Employee.first_name") 
-                            # WHERE EmployeeLicense.IsDelete = 0
                                 
         rows = self.cursor.fetchall()
         return rows

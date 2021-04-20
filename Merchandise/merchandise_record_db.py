@@ -27,8 +27,8 @@ class MerchandiseRecordDB:
                                 INNER JOIN MerchandiseType ON Merchandise.merchandisetypeid = MerchandiseType.merchandisetypeid \
                                 INNER JOIN MerchandiseNumber ON Merchandise.merchandisenumberid = MerchandiseNumber.merchandisenumberid \
                                 INNER JOIN MerchandiseStatus ON Merchandise.merchandisestatusid = MerchandiseStatus.merchandisestatusid \
-                                ORDER BY Vendor.first_name") #\
-                                #WHERE Merchandise.IsDelete = 0")
+                                WHERE Merchandise.IsDelete = 0 \
+                                ORDER BY Vendor.first_name")
                                 
         rows = self.cursor.fetchall()
         return rows

@@ -27,8 +27,8 @@ class EventRecordDB:
                             INNER JOIN DanceTeam ON Event.danceteamid = DanceTeam.danceteamid \
                             INNER JOIN EventNumber ON Event.eventnumberid = EventNumber.eventnumberid \
                             INNER JOIN EventPeriod ON Event.eventperiodid = EventPeriod.eventperiodid \
-	                        ORDER BY Event.eventid") #\
-                            #WHERE Event.IsDelete = 0")
+                            WHERE Event.IsDelete = 0 \
+	                        ORDER BY Event.eventid")
                                 
         rows = self.cursor.fetchall()
         return rows

@@ -26,8 +26,8 @@ class StudentRatingRecordDB:
                             INNER JOIN Course ON StudentRating.courseid = Course.courseid \
                             INNER JOIN StudentCategory ON StudentRating.studentcategoryid = StudentCategory.studentcategoryid \
                             INNER JOIN StudentReview ON StudentRating.studentreviewid = StudentReview.studentreviewid \
-                            ORDER BY StudentRating.rating_number") #\
-                            #WHERE StudentRating.IsDelete = 0")
+                            WHERE StudentRating.IsDelete = 0 \
+                            ORDER BY StudentRating.rating_number")
                                 
         rows = self.cursor.fetchall()
         return rows

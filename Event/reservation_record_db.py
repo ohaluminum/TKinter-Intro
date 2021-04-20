@@ -27,8 +27,8 @@ class ReservationRecordDB:
                             INNER JOIN ReservationNumber ON Reservation.reservationnumberid = ReservationNumber.reservationnumberid \
                             INNER JOIN DanceTeam ON Reservation.danceteamid = DanceTeam.danceteamid \
                             INNER JOIN Event On Reservation.eventid = Event.eventid \
-                            ORDER BY Reservation.reservationid") #\
-                            #WHERE Reservation.IsDelete = 0")
+                            WHERE Reservation.IsDelete = 0 \
+                            ORDER BY Reservation.reservationid")
                                 
         rows = self.cursor.fetchall()
         return rows

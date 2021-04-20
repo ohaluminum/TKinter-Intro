@@ -33,8 +33,8 @@ class VendorRecordDB:
                                 INNER JOIN StreetName ON Address.streetid = StreetName.streetid \
                                 INNER JOIN ZipcodeNumber ON Address.zipcodeid = ZipcodeNumber.zipcodeid \
                                 INNER JOIN VendorStatus ON Vendor.vendorstatusid = VendorStatus.vendorstatusid \
-                                ORDER BY Vendor.first_name") #\
-                                #WHERE Vendor.IsDelete = 0")
+                                WHERE Vendor.IsDelete = 0 \
+                                ORDER BY Vendor.first_name")
 
         rows = self.cursor.fetchall()
         return rows

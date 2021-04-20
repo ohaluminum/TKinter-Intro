@@ -27,8 +27,8 @@ class AdminRecordDB:
                                 INNER JOIN Address ON Admin.addressid = Address.addressid \
                                 INNER JOIN CountryName ON Address.countryid = CountryName.countryid \
                                 INNER JOIN StateName ON Address.stateid = StateName.stateid \
-                                INNER JOIN CityName ON Address.cityid = CityName.cityid") #\
-                                # WHERE Admin.IsDelete = 0")
+                                INNER JOIN CityName ON Address.cityid = CityName.cityid \
+                                WHERE Admin.IsDelete = 0")
                                 
         rows = self.cursor.fetchall()
         return rows

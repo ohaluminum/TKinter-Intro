@@ -31,9 +31,8 @@ class OwnerRecordDB:
                                 INNER JOIN StateName ON Address.stateid = StateName.stateid \
                                 INNER JOIN CityName ON Address.cityid = CityName.cityid \
                                 INNER JOIN ZipcodeNumber ON Address.zipcodeid = ZipcodeNumber.zipcodeid \
-                                ORDER BY \
-                                Owner.first_name") #\
-                                # WHERE Owner.IsDelete = 0")
+                                WHERE Owner.IsDelete = 0 \
+                                ORDER BY Owner.first_name")
                                 
         rows = self.cursor.fetchall()
         return rows

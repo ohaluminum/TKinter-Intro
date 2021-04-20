@@ -25,8 +25,8 @@ class EmployeeCredentialRecordDB:
                             INNER JOIN Employee ON EmployeeCredentials.employeeid = Employee.employeeid \
                             INNER JOIN EmployeeType ON EmployeeCredentials.employeetypeid = EmployeeType.employeetypeid \
                             INNER JOIN EmployeeStatus ON EmployeeCredentials.employeestatusid = EmployeeStatus.employeestatusid \
+                            WHERE EmployeeCredentials.IsDelete = 0 \
                             ORDER BY Employee.first_name")
-                            # WHERE EmployeeCredentials.IsDelete = 0")
                                     
         rows = self.cursor.fetchall()
         return rows

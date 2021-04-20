@@ -17,7 +17,9 @@ from Employee.employee_license_db import EmployeeLicenseDB
 from Employee.employee_license_number_db import EmployeeLicenseNumberDB
 from Employee.employee_license_record_db import EmployeeLicenseRecordDB
 from Course.course_db import CourseDB
+from Course.course_record_db import CourseRecordDB
 from Course.student_course_status_db import StudentCourseStatusDB
+from Course.student_course_status_record_db import StudentCourseStatusRecordDB
 from Membership.membership_db import MembershipDB
 from Membership.membership_record_db import MembershipRecordDB
 from Enrollment.enrollment_db import EnrollmentDB
@@ -62,7 +64,9 @@ employeeLicenseDB = EmployeeLicenseDB()
 employeeLicenseNumberDB = EmployeeLicenseNumberDB()
 employeeLicenseRecordDB = EmployeeLicenseRecordDB()
 courseDB = CourseDB()
+courseRecordDB = CourseRecordDB()
 studentCourseStatusDB = StudentCourseStatusDB()
+studentCourseStatusRecordDB = StudentCourseStatusRecordDB()
 merchandiseDB = MerchandiseDB()
 merchandiseRecordDB = MerchandiseRecordDB()
 equipmentDB = EquipmentDB()
@@ -111,14 +115,14 @@ class App(tk.Tk):
         for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard,
                         StudentRecord, Student, StudentRatingRecord, StudentRating, StudentReview, StudentContractRecord, StudentContract,
                         EmployeeRecord, Employee, EmployeeCredentialRecord, EmployeeCredential, EmployeeLogin, EmployeeLicenseRecord, EmployeeLicense, EmployeeLicenseNumber,
-                        Course, StudentCourseStatus, MerchandiseRecord, Merchandise, EquipmentRecord, Equipment, MembershipRecord, Membership, EnrollmentRecord, Enrollment,
+                        CourseRecord, Course, StudentCourseStatusRecord, StudentCourseStatus, MerchandiseRecord, Merchandise, EquipmentRecord, Equipment, MembershipRecord, Membership, EnrollmentRecord, Enrollment,
                         EventRecord, Event, EventStatus, DanceTeam, ReservationRecord, Reservation, BillRecord, Bill, AdminRecord, Admin, AdminInfo, AdminLogin, OwnerRecord, Owner, VendorRecord, Vendor):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
         # Display the current page
-        self.show_frame(Dashboard)
+        self.show_frame(Homepage)
     
     def show_frame(self, curr):
         frame = self.frames[curr]
@@ -449,11 +453,11 @@ class CourseDashboard(tk.Frame):
         tk.Label(self, text="").grid(row=1, column=0)    # Equivalent to empty line
         tk.Label(self, text="").grid(row=2, column=0)    # Equivalent to empty line
         tk.Label(self, text="                                                     ").grid(row=3, column=0)
-        tk.Button(self, text="Course Records", height="8", width="20", command=lambda: controller.show_frame(Course)).grid(row=3, column=1)
+        tk.Button(self, text="Course Records", height="8", width="20", command=lambda: controller.show_frame(CourseRecord)).grid(row=3, column=1)
 
         # 2. Student Course Status
         tk.Label(self, text="                                                                   ").grid(row=3, column=2, columnspan=5)    
-        tk.Button(self, text="Student Course Status", height="8", width="20", command=lambda: controller.show_frame(StudentCourseStatus)).grid(row=3, column=7)
+        tk.Button(self, text="Student Course Status", height="8", width="20", command=lambda: controller.show_frame(StudentCourseStatusRecord)).grid(row=3, column=7)
         tk.Label(self, text="                                                     ").grid(row=3, column=8)    
 
         # 4. Home Dashboard Button
@@ -2370,6 +2374,59 @@ class EmployeeLicenseNumber(tk.Frame):
 # ------------------------------------------- COURSE ------------------------------------------------ 
 
 # Course Record Window
+class CourseRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create course record page element
+        self.header = tk.Label(self, text="Course Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Course Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.course_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.course_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(CourseDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit", height="1", width="15", command=lambda: controller.show_frame(Course)).grid(row=11, column=2, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.course_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.course_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.course_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in courseRecordDB.fetch():
+            self.course_list.insert(tk.END, row)
 
 
 # Course Window
@@ -2476,7 +2533,7 @@ class Course(tk.Frame):
         tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
 
         # Parent Dashboard Button
-        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(CourseDashboard)).grid(row=11, column=1, sticky=tk.W)
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(CourseRecord)).grid(row=11, column=1, sticky=tk.W)
 
         # Notification Label
         self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
@@ -2590,6 +2647,59 @@ class Course(tk.Frame):
 
 
 # Student Course Status Record Window
+class StudentCourseStatusRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create student course status record page element
+        self.header = tk.Label(self, text="Student Course Status Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Student Course Status Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.student_course_status_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.student_course_status_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(CourseDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit", height="1", width="15", command=lambda: controller.show_frame(StudentCourseStatus)).grid(row=11, column=2, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.student_course_status_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.student_course_status_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.student_course_status_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in studentCourseStatusRecordDB.fetch():
+            self.student_course_status_list.insert(tk.END, row)
 
 
 # Student Course Status Window
@@ -2635,7 +2745,7 @@ class StudentCourseStatus(tk.Frame):
 
         # Student Code ID
         self.studentcodeid_text = tk.StringVar()
-        self.studentcodeid_label = tk.Label(self, text='Student Code ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.studentcodeid_label = tk.Label(self, text='Code ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
         self.studentcodeid_entry = tk.Entry(self, textvariable=self.studentcodeid_text)
         self.studentcodeid_entry.grid(row=3, column=1)
         tk.Label(self, text="          ").grid(row=3, column=2)
@@ -2675,7 +2785,7 @@ class StudentCourseStatus(tk.Frame):
         tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
 
         # Parent Dashboard Button
-        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(CourseDashboard)).grid(row=11, column=1, sticky=tk.W)
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(StudentCourseStatusRecord)).grid(row=11, column=1, sticky=tk.W)
 
         # Notification Label
         self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
