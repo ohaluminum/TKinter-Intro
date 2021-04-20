@@ -10,7 +10,12 @@ from Student.student_contract_db import StudentContractDB
 from Student.student_contract_record_db import StudentContractRecordDB
 from Employee.employee_db import EmployeeDB
 from Employee.employee_record_db import EmployeeRecordDB
+from Employee.employee_credential_db import EmployeeCredentialDB
+from Employee.employee_credential_record_db import EmployeeCredentialRecordDB
 from Employee.employee_login_db import EmployeeLoginDB
+from Employee.employee_license_db import EmployeeLicenseDB
+from Employee.employee_license_number_db import EmployeeLicenseNumberDB
+from Employee.employee_license_record_db import EmployeeLicenseRecordDB
 from Course.course_db import CourseDB
 from Course.student_course_status_db import StudentCourseStatusDB
 from Membership.membership_db import MembershipDB
@@ -48,20 +53,24 @@ studentReviewDB = StudentReviewDB()
 studentRatingRecordDB = StudentRatingRecordDB()
 studentContractDB = StudentContractDB()
 studentContractRecordDB = StudentContractRecordDB()
-
 employeeDB = EmployeeDB()
 employeeRecordDB = EmployeeRecordDB()
+employeeCredentialDB = EmployeeCredentialDB()
+employeeCredentialRecordDB = EmployeeCredentialRecordDB()
 employeeLoginDB = EmployeeLoginDB()
+employeeLicenseDB = EmployeeLicenseDB()
+employeeLicenseNumberDB = EmployeeLicenseNumberDB()
+employeeLicenseRecordDB = EmployeeLicenseRecordDB()
 courseDB = CourseDB()
 studentCourseStatusDB = StudentCourseStatusDB()
-membershipDB = MembershipDB()
-membershipRecordDB = MembershipRecordDB()
-enrollmentDB = EnrollmentDB()
-enrollmentRecordDB = EnrollmentRecordDB()
 merchandiseDB = MerchandiseDB()
 merchandiseRecordDB = MerchandiseRecordDB()
 equipmentDB = EquipmentDB()
 equipmentRecordDB = EquipmentRecordDB()
+membershipDB = MembershipDB()
+membershipRecordDB = MembershipRecordDB()
+enrollmentDB = EnrollmentDB()
+enrollmentRecordDB = EnrollmentRecordDB()
 eventDB = EventDB()
 eventStatusDB = EventStatusDB()
 eventRecordDB = EventRecordDB()
@@ -101,7 +110,7 @@ class App(tk.Tk):
 
         for F in (Homepage, Login, Register, Dashboard, StudentDashboard, EmployeeDashboard, CourseDashboard, InventoryDashboard, EventDashboard, AdminDashboard,
                         StudentRecord, Student, StudentRatingRecord, StudentRating, StudentReview, StudentContractRecord, StudentContract,
-                        EmployeeRecord, Employee,
+                        EmployeeRecord, Employee, EmployeeCredentialRecord, EmployeeCredential, EmployeeLogin, EmployeeLicenseRecord, EmployeeLicense, EmployeeLicenseNumber,
                         Course, StudentCourseStatus, MerchandiseRecord, Merchandise, EquipmentRecord, Equipment, MembershipRecord, Membership, EnrollmentRecord, Enrollment,
                         EventRecord, Event, EventStatus, DanceTeam, ReservationRecord, Reservation, BillRecord, Bill, AdminRecord, Admin, AdminInfo, AdminLogin, OwnerRecord, Owner, VendorRecord, Vendor):
             frame = F(container, self)
@@ -317,7 +326,7 @@ class Dashboard(tk.Frame):
 
         # 2. Employee Button
         tk.Label(self, text="      ").grid(row=3, column=1)    
-        tk.Button(self, text="Employee", height="3", width="20", command=lambda: controller.show_frame(EmployeeDashboard)).grid(row=3, column=2)
+        tk.Button(self, text="Employee", height="3", width="20", command=lambda: controller.show_frame(EmployeeDashboard)).grid(row=3, column=2)        # ✔
 
         # 3. Course Button
         tk.Label(self, text="      ").grid(row=3, column=3)    
@@ -411,13 +420,13 @@ class EmployeeDashboard(tk.Frame):
         tk.Label(self, text="                    ").grid(row=3, column=1)    
         tk.Label(self, text="                    ").grid(row=3, column=2)    
         tk.Label(self, text="                    ").grid(row=3, column=3)    
-        tk.Button(self, text="Employee Credentials", height="8", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=3, column=4)
+        tk.Button(self, text="Employee Credentials", height="8", width="20", command=lambda: controller.show_frame(EmployeeCredentialRecord)).grid(row=3, column=4)
 
         # 3. Employee License Number
         tk.Label(self, text="                    ").grid(row=3, column=5)    
         tk.Label(self, text="                    ").grid(row=3, column=6)    
         tk.Label(self, text="                    ").grid(row=3, column=7)    
-        self.courseButton = tk.Button(self, text="Employee License Number", height="8", width="20", command=lambda: controller.show_frame(Homepage)).grid(row=3, column=8)
+        self.courseButton = tk.Button(self, text="Employee License Number", height="8", width="20", command=lambda: controller.show_frame(EmployeeLicenseRecord)).grid(row=3, column=8)
 
         # 4. Home Dashboard Button
         tk.Label(self, text="").grid(row=4, column=0)  
@@ -1618,6 +1627,744 @@ class Employee(tk.Frame):
             self.employee_list.insert(tk.END, line)
 
 
+# Employee Credential Record Window
+class EmployeeCredentialRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create employee credential record page element
+        self.header = tk.Label(self, text="Employee Credential Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Employee Credential Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.employee_credential_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.employee_credential_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EmployeeDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit Credential", height="1", width="15", command=lambda: controller.show_frame(EmployeeCredential)).grid(row=11, column=2, sticky=tk.W)
+        tk.Button(self, text="Edit Login", height="1", width="15", command=lambda: controller.show_frame(EmployeeLogin)).grid(row=11, column=3, sticky=tk.W)
+        tk.Button(self, text="Edit Employee", height="1", width="15", command=lambda: controller.show_frame(Employee)).grid(row=11, column=4, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.employee_credential_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.employee_credential_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.employee_credential_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in employeeCredentialRecordDB.fetch():
+            self.employee_credential_list.insert(tk.END, row)
+
+
+# Employee Credential Window
+class EmployeeCredential(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create employee page element
+        self.header = tk.Label(self, text="Employee Credential Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Employee ID
+        self.employeeid_text = tk.StringVar()
+        self.employeeid_label = tk.Label(self, text='Employee ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.employeeid_entry = tk.Entry(self, textvariable=self.employeeid_text)
+        self.employeeid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Employee Type
+        self.employeetypeid_text = tk.StringVar()
+        self.employeetypeid_label = tk.Label(self, text='Type ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.employeetypeid_entry = tk.Entry(self, textvariable=self.employeetypeid_text)
+        self.employeetypeid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Employee Status
+        self.employeestatusid_text = tk.StringVar()
+        self.employeestatusid_label = tk.Label(self, text='Status ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.employeestatusid_entry = tk.Entry(self, textvariable=self.employeestatusid_text)
+        self.employeestatusid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Employee Login
+        self.employeeloginid_text = tk.StringVar()
+        self.employeeloginid_label = tk.Label(self, text='Login ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.employeeloginid_entry = tk.Entry(self, textvariable=self.employeeloginid_text)
+        self.employeeloginid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Employee Credential List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.employee_credential_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.employee_credential_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EmployeeCredentialRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.employee_credential_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.employee_credential_list.yview)
+
+        # Bind select
+        self.employee_credential_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.employee_credential_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.employee_credential_list.get(index)
+
+            # Display data at entry box
+            self.employeeid_entry.delete(0, tk.END)
+            self.employeeid_entry.insert(tk.END, self.selected_item[1])
+            self.employeetypeid_entry.delete(0, tk.END)
+            self.employeetypeid_entry.insert(tk.END, self.selected_item[2])
+            self.employeestatusid_entry.delete(0, tk.END)
+            self.employeestatusid_entry.insert(tk.END, self.selected_item[3])
+            self.employeeloginid_entry.delete(0, tk.END)
+            self.employeeloginid_entry.insert(tk.END, self.selected_item[4])
+
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.employeeid_text.get() == '' or self.employeetypeid_text.get() == '' or self.employeestatusid_text.get() == '' \
+                                            or self.employeeloginid_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        employeeCredentialDB.insert(self.employeeid_text.get(), self.employeetypeid_text.get(), self.employeestatusid_text.get(), 
+                        self.employeeloginid_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+        # Show the message
+        self.notification_label.config(text="New record has been added successfully!")
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        employeeCredentialDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        employeeCredentialDB.update(self.selected_item[0], self.employeeid_text.get(), self.employeetypeid_text.get(), self.employeestatusid_text.get(), 
+                        self.employeeloginid_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+
+
+    # Clear entry box
+    def clear_text(self):
+        self.employeeid_entry.delete(0, tk.END)
+        self.employeetypeid_entry.delete(0, tk.END)
+        self.employeestatusid_entry.delete(0, tk.END)
+        self.employeeloginid_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.employee_credential_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in employeeCredentialDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4]]
+            self.employee_credential_list.insert(tk.END, line)
+
+
+# Employee Login Window
+class EmployeeLogin(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create employee login page element
+        self.header = tk.Label(self, text="Employee Login Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Employee Username
+        self.employee_username_text = tk.StringVar()
+        self.employee_username_label = tk.Label(self, text='Username: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.employee_username_entry = tk.Entry(self, textvariable=self.employee_username_text)
+        self.employee_username_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Employee Password
+        self.employee_password_text = tk.StringVar()
+        self.employee_password_label = tk.Label(self, text='Password: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.employee_password_entry = tk.Entry(self, textvariable=self.employee_password_text)
+        self.employee_password_entry.grid(row=2, column=4)
+        tk.Label(self, text="                                                                                                              ").grid(row=2, column=5, columnspan=4)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Employee List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.employee_login_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.employee_login_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EmployeeCredentialRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.employee_login_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.employee_login_list.yview)
+
+        # Bind select
+        self.employee_login_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.employee_login_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.employee_login_list.get(index)
+
+            # Display data at entry box
+            self.employee_username_entry.delete(0, tk.END)
+            self.employee_username_entry.insert(tk.END, self.selected_item[1])
+            self.employee_password_entry.delete(0, tk.END)
+            self.employee_password_entry.insert(tk.END, self.selected_item[2])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.employee_username_text.get() == '' or self.employee_password_text.get() =='':            
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        inputData = (self.employee_username_text.get(), self.employee_password_text.get())
+        employeeLoginDB.insert(inputData)
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        employeeLoginDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        employeeLoginDB.update(self.selected_item[0], self.employee_username_text.get(), self.employee_password_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+       
+        
+    # Clear entry box
+    def clear_text(self):
+        self.employee_username_entry.delete(0, tk.END)
+        self.employee_password_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.employee_login_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in employeeLoginDB.fetch():
+            line = [row[0], row[1], row[2]]
+            self.employee_login_list.insert(tk.END, line)
+
+
+# Employee License Record Window
+class EmployeeLicenseRecord(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create employee license record page element
+        self.header = tk.Label(self, text="Employee License Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+    
+    def create_widgets(self, controller):
+
+        # No Entry and Buttons Needed: Read-only Table
+
+        # Employee License Record List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.employee_license_list = tk.Listbox(self, height=15, width=130, border=1)
+        self.employee_license_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EmployeeDashboard)).grid(row=11, column=1, sticky=tk.W)
+
+        # Edit Record Button
+        tk.Button(self, text="Edit License", height="1", width="15", command=lambda: controller.show_frame(EmployeeLicense)).grid(row=11, column=2, sticky=tk.W)
+        tk.Button(self, text="Edit License Number", height="1", width="17", command=lambda: controller.show_frame(EmployeeLicenseNumber)).grid(row=11, column=3, sticky=tk.W)
+        tk.Button(self, text="Edit Employee", height="1", width="15", command=lambda: controller.show_frame(Employee)).grid(row=11, column=4, sticky=tk.W)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.employee_license_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.employee_license_list.yview)
+
+        
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.employee_license_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in employeeCredentialRecordDB.fetch():
+            self.employee_license_list.insert(tk.END, row)
+
+
+# Employee License Window
+class EmployeeLicense(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create employee license page element
+        self.header = tk.Label(self, text="Employee License Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Employee ID
+        self.employeeid_text = tk.StringVar()
+        self.employeeid_label = tk.Label(self, text='Employee ID: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.employeeid_entry = tk.Entry(self, textvariable=self.employeeid_text)
+        self.employeeid_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        
+        # Employee Status ID
+        self.employeestatusid_text = tk.StringVar()
+        self.employeestatusid_label = tk.Label(self, text='Status ID: ', font=("Segoe UI", 11)).grid(row=2, column=3, sticky=tk.W)
+        self.employeestatusid_entry = tk.Entry(self, textvariable=self.employeestatusid_text)
+        self.employeestatusid_entry.grid(row=2, column=4)
+        tk.Label(self, text="          ").grid(row=2, column=5)
+
+        # Employee Type ID 
+        self.employeetypeid_text = tk.StringVar()
+        self.employeetypeid_label = tk.Label(self, text='Type ID: ', font=("Segoe UI", 11)).grid(row=2, column=6, sticky=tk.W)
+        self.employeetypeid_entry = tk.Entry(self, textvariable=self.employeetypeid_text)
+        self.employeetypeid_entry.grid(row=2, column=7)
+        tk.Label(self, text="          ").grid(row=2, column=8)
+
+        # Employee License Number ID
+        self.employeelicensenumberid_text = tk.StringVar()
+        self.employeelicensenumberid_label = tk.Label(self, text='Number ID: ', font=("Segoe UI", 11)).grid(row=3, column=0, sticky=tk.W)
+        self.employeelicensenumberid_entry = tk.Entry(self, textvariable=self.employeelicensenumberid_text)
+        self.employeelicensenumberid_entry.grid(row=3, column=1)
+        tk.Label(self, text="          ").grid(row=3, column=2)
+
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # employee List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.employee_license_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.employee_license_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EmployeeLicenseRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.employee_license_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.employee_license_list.yview)
+
+        # Bind select
+        self.employee_license_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.employee_license_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.employee_license_list.get(index)
+
+            # Display data at entry box
+            self.employeeid_entry.delete(0, tk.END)
+            self.employeeid_entry.insert(tk.END, self.selected_item[1])
+            self.employeestatusid_entry.delete(0, tk.END)
+            self.employeestatusid_entry.insert(tk.END, self.selected_item[2])
+            self.employeetypeid_entry.delete(0, tk.END)
+            self.employeetypeid_entry.insert(tk.END, self.selected_item[3])
+            self.employeelicensenumberid_entry.delete(0, tk.END)
+            self.employeelicensenumberid_entry.insert(tk.END, self.selected_item[4])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.employeeid_text.get() == '' or self.employeestatusid_text.get() == '' or self.employeetypeid_text.get() == '' \
+                                            or self.employeelicensenumberid_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        employeeLicenseDB.insert(self.employeeid_text.get(), self.employeestatusid_text.get(), self.employeetypeid_text.get(), 
+                                self.employeelicensenumberid_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+        # Show the message
+        self.notification_label.config(text="New record has been added successfully!")
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        employeeLicenseDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        employeeLicenseDB.update(self.selected_item[0], self.employeeid_text.get(), self.employeestatusid_text.get(), self.employeetypeid_text.get(), 
+                                self.employeelicensenumberid_text.get())
+        
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+
+
+    # Clear entry box
+    def clear_text(self):
+        self.employeeid_entry.delete(0, tk.END)
+        self.employeestatusid_entry.delete(0, tk.END)
+        self.employeetypeid_entry.delete(0, tk.END)
+        self.employeelicensenumberid_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.employee_license_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in employeeLicenseDB.fetch():
+            line = [row[0], row[1], row[2], row[3], row[4]]
+            self.employee_license_list.insert(tk.END, line)
+
+
+# Employee License Number Window
+class EmployeeLicenseNumber(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Create employee license number page element
+        self.header = tk.Label(self, text="Employee License Number Records", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        tk.Label(self, text="").grid(row=1, column=0)
+
+        # Create widgets
+        self.create_widgets(controller)
+        
+        # Populate initial list
+        self.populate_list()
+
+
+    def create_widgets(self, controller):
+        # Employee License Number
+        self.employee_license_number_text = tk.StringVar()
+        self.employee_license_number_label = tk.Label(self, text='License Number: ', font=("Segoe UI", 11)).grid(row=2, column=0, sticky=tk.W)
+        self.employee_license_number_entry = tk.Entry(self, textvariable=self.employee_license_number_text)
+        self.employee_license_number_entry.grid(row=2, column=1)
+        tk.Label(self, text="          ").grid(row=2, column=2)
+        tk.Label(self, text="                             ").grid(row=2, column=3)
+        tk.Label(self, text="                                        ").grid(row=2, column=4)
+        tk.Label(self, text="                                                                                       ").grid(row=2, column=5, columnspan=4)
+        
+        # Buttons
+        tk.Label(self, text="").grid(row=5, column=0)
+        self.add_btn = tk.Button(self, text="Add Record", font=("Segoe UI", 10), width=14, command=self.add_item)
+        self.add_btn.grid(row=6, column=0, sticky=tk.E)  
+
+        self.update_btn = tk.Button(self, text="Update Record", font=("Segoe UI", 10), width=14, command=self.update_item)
+        self.update_btn.grid(row=6, column=1, sticky=tk.E)
+
+        self.remove_btn = tk.Button(self, text="Remove Record", font=("Segoe UI", 10), width=14, command=self.remove_item)
+        self.remove_btn.grid(row=6, column=3, sticky=tk.E)
+
+        self.exit_btn = tk.Button(self, text="Clear Input", font=("Segoe UI", 10), width=14, command=self.clear_text)
+        self.exit_btn.grid(row=6, column=4, sticky=tk.E)
+
+        # Employee License Number List
+        tk.Label(self, text="").grid(row=7, column=0)
+        self.employee_license_number_list = tk.Listbox(self, height=7, width=130, border=1)
+        self.employee_license_number_list.grid(row=8, column=0, columnspan=8, rowspan=2)
+
+        # Create Scrollbar
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.grid(row=8, column=8, rowspan=3)
+        tk.Label(self, text="").grid(row=10, column=0)
+
+        # Home Dashboard Button
+        tk.Button(self, text="Home", height="1", width="10", command=lambda: controller.show_frame(Dashboard)).grid(row=11, column=0, sticky=tk.W)
+
+        # Parent Dashboard Button
+        tk.Button(self, text="Back", height="1", width="10", command=lambda: controller.show_frame(EmployeeLicenseRecord)).grid(row=11, column=1, sticky=tk.W)
+
+        # Notification Label
+        self.notification_label = tk.Label(self, text="", fg='green3', font=("Segoe UI", 11, "italic"))
+        self.notification_label.grid(row=11, column=3, sticky=tk.W, columnspan=4)
+
+        # Logout Button
+        tk.Button(self, text="Logout", height="1", width="10", command=lambda: controller.show_frame(Homepage)).grid(row=11, column=7, sticky=tk.E)
+
+        # Set Scroll to Listbox
+        self.employee_license_number_list.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.configure(command=self.employee_license_number_list.yview)
+
+        # Bind select
+        self.employee_license_number_list.bind('<<ListboxSelect>>', self.select_item)
+
+        
+    def select_item(self, event):
+        try:
+            # Get index
+            index = self.employee_license_number_list.curselection()[0]
+            
+            # Get selected item
+            self.selected_item = self.employee_license_number_list.get(index)
+
+            # Display data at entry box
+            self.employee_license_number_entry.delete(0, tk.END)
+            self.employee_license_number_entry.insert(tk.END, self.selected_item[1])
+
+        except IndexError:
+            pass
+    
+
+    # Add new item to the DB
+    def add_item(self):
+        # Prevent empty input
+        if self.employee_license_number_text.get() == '':
+            messagebox.showerror('Required Fields', 'Please input all required fields.')
+            return
+        
+        # Insert into database
+        employeeLicenseNumberDB.insert(self.employee_license_number_text.get())
+
+        # Clear entry box
+        self.clear_text()
+
+        # Reload the listbox
+        self.populate_list()
+
+        # Show the message
+        self.notification_label.config(text="New record has been added successfully!")
+
+
+    def remove_item(self):
+        # Pass in the ID of selected item
+        employeeLicenseNumberDB.remove(self.selected_item[0])
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been deleted successfully!")
+
+
+    def update_item(self):
+        employeeLicenseNumberDB.update(self.selected_item[0], self.employee_license_number_text.get())
+        self.clear_text()
+        self.populate_list()
+        self.notification_label.config(text="Selected record has been updated successfully!")
+
+
+    # Clear entry box
+    def clear_text(self):
+        self.employee_license_number_entry.delete(0, tk.END)
+        self.employee_license_number_entry.delete(0, tk.END)
+
+
+    def populate_list(self):
+        # Clear old item so that records doesn't double populate
+        self.employee_license_number_list.delete(0, tk.END)
+
+        # Iterate through the data returned by the fetch method in Database Class
+        for row in employeeLicenseNumberDB.fetch():
+            line = [row[0], row[1]]
+            self.employee_license_number_list.insert(tk.END, line)
 
 
 # ------------------------------------------- COURSE ------------------------------------------------ 

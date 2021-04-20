@@ -18,9 +18,26 @@ class EmployeeLoginDB:
             print("Failed to connect to database.")
 
 
+    def fetch(self):
+        self.cursor.execute("SELECT * FROM EmployeeLogin WHERE IsDelete = 0")
+        rows = self.cursor.fetchall()
+        return rows
+
+
     def insert(self, inputData):
         self.cursor.execute("INSERT INTO EmployeeLogin (employee_username, employee_password) VALUES (?, ?)",
                             (inputData[0], inputData[1]))
+        self.conn.commit()
+
+    
+    def remove(self, employeeloginid):
+        self.cursor.execute("UPDATE EmployeeLogin SET IsDelete = 1 WHERE employeeloginid=?", (employeeloginid,))
+        self.conn.commit()
+
+
+    def update(self, employeeloginid, employee_username, employee_password):
+        self.cursor.execute("UPDATE EmployeeLogin SET employee_username = ?, employee_password = ? WHERE employeeloginid = ?",
+                            (employee_username, employee_password, employeeloginid))
         self.conn.commit()
 
 
