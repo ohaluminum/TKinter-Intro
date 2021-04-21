@@ -3440,7 +3440,8 @@ class MembershipRecord(tk.Frame):
 
         # Iterate through the data returned by the fetch method in Database Class
         for row in membershipRecordDB.fetch():
-            self.membership_list.insert(tk.END, row)
+            line = [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]]
+            self.membership_list.insert(tk.END, line)
 
 
 # Membership Window
@@ -3700,7 +3701,8 @@ class EnrollmentRecord(tk.Frame):
 
         # Iterate through the data returned by the fetch method in Database Class
         for row in enrollmentRecordDB.fetch():
-            self.enrollment_list.insert(tk.END, row)
+            line = [row[0], row[1], row[2], row[3], row[4], row[5]]
+            self.enrollment_list.insert(tk.END, line)
 
 
 # Enrollment Window
