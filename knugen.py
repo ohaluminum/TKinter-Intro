@@ -531,7 +531,7 @@ class AdminDashboard(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         # Create admin dashboard page element
-        self.header = tk.Label(self, text="Admin/Owner Infromation", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
+        self.header = tk.Label(self, text="Admin/Owner Information", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=9)   # The first parameter: where to put the element
 
         # 1. Admin Records/Credentials
         tk.Label(self, text="").grid(row=1, column=0)    # Equivalent to empty line
